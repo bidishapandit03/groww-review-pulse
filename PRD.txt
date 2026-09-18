@@ -1,0 +1,271 @@
+PRD: Groww Weekly Review Pulse
+Owner: You (aspiring Product Manager) | Status: Draft v1 | Date: 19 Sept 2026 | Project: LIP Challenge
+
+0. How to use this PRD
+This PRD is written for you as an aspiring PM. Every step in Section 9 has the same five parts:
+
+What we're doing: plain-language explanation.
+Why it matters (PM lens): the product thinking behind the step.
+Tools & tech: what we use, and what else is worth considering.
+Output: what "done" looks like.
+Clarifying questions for you: I will ask these before we start the step. Your answers go into the Decisions Log (Section 13).
+Anything marked [Assumption] stays an assumption until you confirm it.
+
+1. Problem statement
+Groww receives a large volume of App Store and Play Store reviews. Product, Support and Leadership cannot read them all, so recurring issues (KYC delays, failed payments, slow withdrawals) are noticed late and by luck.
+
+Solution: an automated weekly workflow that imports the last 8–12 weeks of public reviews, groups them into at most 5 themes, writes a scannable one-page pulse (≤250 words), and drafts an email with that note.
+
+2. Goals and non-goals
+Goals
+
+G1. Turn raw reviews into a weekly note with top 3 themes, 3 real user quotes, 3 action ideas.
+G2. Make the workflow re-runnable for any new week by someone else, using the README.
+G3. Guarantee no PII (usernames, emails, IDs, phone, PAN, UPI IDs) in any artifact.
+G4. Demonstrate the skills being tested: LLM prompting (summarization, quote selection, tone control) and workflow automation (Import → Group → Generate → Draft email).
+Non-goals (v1)
+
+Real-time monitoring or alerts.
+Multi-country or multi-language support [Assumption: India, English/Hinglish only].
+Sentiment dashboards, competitor benchmarking, or replying to reviews.
+Scraping anything behind a login.
+3. Users and jobs to be done
+User	Job to be done	What the note must give them
+Product / Growth	"What should we fix next?"	Ranked themes and concrete action ideas
+Support	"What are users saying, and what should we acknowledge?"	Real quotes and theme counts
+Leadership	"Is the product healthy this week?"	A one-minute scan with trend direction
+4. Requirements
+Functional
+FR1. Import reviews for the last 8–12 weeks from the App Store and Play Store (rating, title, text, date only).
+FR2. Redact PII before any LLM call or file write.
+FR3. Assign each review to one of at most 5 themes from a fixed legend.
+FR4. Compute counts, average rating and week-over-week change in code, not with the LLM.
+FR5. Generate a note with exactly 3 themes, 3 verbatim quotes, 3 action ideas, ≤250 words.
+FR6. Validate the note automatically (word count, quotes exist in data, no PII); retry once on failure.
+FR7. Create an email draft containing the note in the user's own mailbox.
+FR8. Provide a UI to run the pipeline and view outputs.
+Non-functional and constraints
+Public review sources only; no scraping behind logins.
+Max 5 themes; note ≤250 words; scannable bullets.
+No usernames, emails or IDs in any output, CSV, screenshot or repo file.
+Secrets never committed to GitHub.
+Free or low-cost tooling wherever possible.
+5. Success metrics (suggested targets, confirm in Step 0)
+Metric	Target
+PII found in outputs	0
+Quotes that are verbatim from the dataset	100%
+Runs producing a note ≤250 words	100% (after validation and retry)
+Tagging agreement with your hand-labeled sample of ~50 reviews	≥80%
+Time for a full weekly run	under ~10 minutes
+A stranger re-runs it from the README	under ~15 minutes
+6. Solution overview
+App Store public RSS
+
+Import
+
+Play Store public reviews
+
+Redact PII
+
+Tag themes with Mistral
+
+Aggregate stats and shortlist quotes
+
+Generate note with Mistral
+
+Validate note
+
+Gmail draft
+
+Streamlit app and Vercel page
+
+Key design principle: code handles everything that must be exact (counts, dates, quote text, word count, PII). The LLM handles what needs language skill (theme tagging, summarizing, action ideas, tone).
+
+7. Tech stack overview
+Layer	Choice	Notes
+Language	Python 3.11+	Fits Streamlit, Mistral and Hugging Face
+Coding assistant	Cursor + opencode	Builds the code; separate from the app's LLM
+LLM	Mistral API (mistral-small-latest for tagging, mistral-large-latest for the note)	Free tier limits have changed recently, so check Admin Console → Limits
+Embeddings / vector space	Hugging Face sentence-transformers (e.g. a multilingual MiniLM model)	Optional; in-memory FAISS or Chroma, no hosted DB
+App UI	Streamlit	Interactive demo
+Hosting	Streamlit Community Cloud (app) + Vercel (public "latest pulse" page)	See Section 8
+Code and automation	GitHub + GitHub Actions	Repo, weekly cron, CI
+Email	Gmail API drafts.create	Fallback: .eml file or mailto:
+Data and validation	pandas, pydantic, pytest	
+Extras	Microsoft Presidio (optional PII), Loom (demo video), Excalidraw (diagram), GitHub Issues/Projects (task board)	
+8. Important decision: Streamlit vs Vercel
+Streamlit needs a long-running server process, and Vercel is built for static sites and short serverless functions. A Streamlit app cannot be hosted well on Vercel. Options:
+
+Option	How it works	Trade-off
+A (recommended)	Streamlit app on Streamlit Community Cloud (free, connects to GitHub). A GitHub Action runs the pipeline weekly and commits the new note to the repo. Vercel auto-deploys a simple public page showing the latest note.	Two hosts, but each does what it is good at; shows real workflow automation
+B	Next.js app plus Python serverless functions, all on Vercel	Single host, but function time limits make the Mistral batching harder
+C	Skip Streamlit; everything on Vercel with a JS/TS pipeline	Simplest hosting, but drops the Python and Streamlit tooling you want to use
+I recommend Option A. This is a decision for you in Step 9.
+
+9. Step-by-step plan
+Suggested effort is my rough estimate for focused work; adjust after Step 0.
+
+Step 0: Discovery and scope (PM) | ~1–2 hrs
+What we're doing: Define who reads the pulse, what decisions it should support, how we'll judge success, and what is out of scope.
+
+Why it matters (PM lens): A weekly note with no clear reader is just a data demo. Reviewers grade on usefulness to Product, Support and Leadership, so we lock the user, metrics and scope first.
+
+Tools & tech: This PRD, a GitHub repo /docs folder, Google Docs or Notion for notes, Excalidraw for a flow sketch.
+
+Output: Confirmed problem statement, primary reader, success metrics, scope, and deadline.
+
+Clarifying questions for you:
+
+What is the submission deadline and the exact submission format (link, form, upload)?
+Which reader should we optimize the note for first: Product, Support or Leadership?
+Is India-only, English/Hinglish reviews acceptable?
+Are the suggested success metrics in Section 5 fine, or would you change any?
+Step 1: Repo and environment setup | ~1–2 hrs
+What we're doing: Create the GitHub repo, folder structure, Python environment, and secrets handling, and configure the coding assistant with our constraints.
+
+Why it matters (PM lens): A clean, documented repo is what a reviewer opens first. Setting constraints (max 5 themes, ≤250 words, no PII) in AGENTS.md keeps the AI assistant aligned with the requirements.
+
+Tools & tech: GitHub, Python venv (or uv), Cursor + opencode (/init creates AGENTS.md), python-dotenv, .gitignore, .env.example, GitHub Issues/Projects as a task board.
+
+groww-review-pulse/
+  app/streamlit_app.py
+  pipeline/
+    import_reviews.py  redact.py  tag.py  aggregate.py
+    quotes.py  note.py  email_draft.py
+  prompts/  tag_themes.txt  write_note.txt
+  data/  raw/ (gitignored)   sample/ (redacted, committed)
+  outputs/  weekly-note-YYYY-WW.md
+  tests/
+  README.md  AGENTS.md  .env.example
+Output: Repo with folder structure, virtual environment, and a "hello world" commit.
+
+Clarifying questions for you:
+
+Public or private repo? (A public repo means we must never commit raw data.)
+How comfortable are you with Python? Should opencode explain the code as it writes it?
+Which operating system are you on?
+Step 2: Import reviews | ~2–3 hrs
+What we're doing: Pull Groww reviews from the last 8–12 weeks from both stores into one normalized table with only rating, title, text, and date.
+
+Why it matters (PM lens): Everything downstream depends on data coverage. If the import only spans two weeks, trends are meaningless, so we check the date range early.
+
+Tools & tech:
+
+App Store: Apple's public customer-reviews RSS (JSON) for the India store, app ID 1404871703, via requests. It returns only roughly the latest 500 reviews per country, so verify the oldest date.
+Play Store: the google-play-scraper Python package reads public review pages (no login). The package name is likely com.nextbillion.groww; confirm from the Play Store URL.
+pandas for normalization and dedupe.
+If coverage is short, append each week's import to a running CSV.
+Output: data/raw/reviews_raw.csv (gitignored) with columns source, rating, title, text, date. The author field is never stored.
+
+Clarifying questions for you:
+
+8 weeks or 12 weeks?
+Are you okay documenting in the README that Play reviews come from public pages via a library, or would you rather use a manual public export?
+Should we include both stores equally, or is one more important to your reader?
+Step 3: Clean data and redact PII | ~2–3 hrs
+What we're doing: Clean the text (dedupe, drop empties, normalize dates) and mask sensitive details before anything reaches an LLM or a file.
+
+Why it matters (PM lens): Users of a finance app sometimes paste sensitive details into complaints. A privacy failure would sink the project, so PII handling is a product requirement, not an afterthought.
+
+Tools & tech: Python re for emails, phones ((\+91)?[6-9]\d{9}), PAN ([A-Z]{5}[0-9]{4}[A-Z]), UPI IDs, 12-digit numbers and long digit strings, URLs. Optional: Microsoft Presidio. pytest with fake PII examples.
+
+Output: reviews_clean.csv, a redaction test suite, and a grep check (@, digit runs) with zero hits.
+
+Clarifying questions for you:
+
+When a review contains PII, should we mask the details (recommended) or drop the whole review?
+Should agent or employee names mentioned in reviews also be masked?
+Step 4: Explore data and design the theme legend | ~2–3 hrs
+What we're doing: Read a sample of reviews, decide the 5 themes with clear definitions, and hand-label about 50 reviews as a "gold set" to measure accuracy later.
+
+Why it matters (PM lens): Choosing themes is a product judgment call, and the most PM-like step in the project. Fixed themes make weeks comparable; letting the LLM invent categories each time would not.
+
+Tools & tech: Hugging Face sentence-transformers (multilingual model such as paraphrase-multilingual-MiniLM-L12-v2) to embed reviews, scikit-learn KMeans or HDBSCAN to see natural clusters, in-memory FAISS or Chroma if search is needed, a Streamlit page or notebook to browse clusters, Mistral to suggest cluster names.
+
+Starting theme legend (to be refined by you):
+
+Theme	Covers
+Onboarding & KYC	Demat opening, KYC/e-sign delays, verification rejections
+Payments & Withdrawals	UPI add-funds failures, bank linking, payout delays, SIP autopay
+Trading & Order Execution	Order failures, lag in market hours, F&O, charts, price data
+Charges, Statements & Reports	Brokerage complaints, P&L and tax statements, contract notes
+App Performance & Support	Crashes, login/OTP issues, slowness, support response
+Output: Final theme legend with definitions and examples, plus a 50-review gold set.
+
+Clarifying questions for you:
+
+Which of the five proposed themes fit your view of Groww, and what would you change?
+Should reviews that fit no theme go to a hidden "Other" bucket that never appears in the note?
+Do you have time to hand-label ~50 reviews? (I recommend it; it shows your judgment.)
+Step 5: Tag themes with Mistral | ~3–4 hrs
+What we're doing: Ask Mistral to assign each review one theme (and optionally a sentiment) in batches, then compute counts, average ratings and week-over-week change in code.
+
+Why it matters (PM lens): This is the core "LLM as a classifier" use case. Reliable structured output beats clever prose, and computing numbers in code avoids LLM arithmetic errors.
+
+Tools & tech: Mistral API via the mistralai SDK (mistral-small-latest), JSON output mode, pydantic schema validation, tenacity for retry/backoff on 429 rate limits, pandas aggregation. Batch 30–50 reviews per call and throttle requests.
+
+Output: reviews_tagged.csv, theme_stats.json, and an accuracy score against your gold set.
+
+Clarifying questions for you:
+
+One theme per review, or allow multiple?
+Do you need sentiment, or is the star rating enough?
+What does your Mistral console show for current limits (check Admin Console → Limits)?
+Step 6: Choose top themes and candidate quotes | ~2–3 hrs
+What we're doing: Rank themes to find the top 3, and shortlist candidate quotes for each with unique IDs.
+
+Why it matters (PM lens:) "Top" is a product decision. Ranking by volume, by negativity, or by week-over-week spike leads to different notes. Shortlisting quotes in code means the LLM can only choose from real text.
+
+Tools & tech: pandas; a ranking formula you choose (for example volume weighted by negative rating); quote filters (8–25 words, PII-free, clear language); embedding similarity to the theme centroid (Hugging Face) to pick representative quotes.
+
+Output: top3.json with theme stats and candidate quote IDs.
+
+Clarifying questions for you:
+
+How should we rank "top" themes: by volume, by negativity, or by week-over-week change?
+Should quotes include praise as well as complaints?
+Are Hinglish quotes acceptable if they are clear?
+Step 7: Generate and validate the weekly note | ~3–4 hrs
+What we're doing: Mistral writes one-line theme summaries and three action ideas, and chooses three quote IDs. Our code inserts the exact quote text and checks the result.
+
+Why it matters (PM lens): This is where summarization, quote selection and tone control are tested. Validation turns a probabilistic model into a dependable feature.
+
+Tools & tech: mistral-large-latest, prompt files in /prompts (versioned in GitHub), pydantic, pytest. Validators: word count ≤250, exactly 3/3/3, every quote exists in the data, PII regex passes. On failure, retry once with the error message. Optional: Markdown to PDF export (pandoc or WeasyPrint).
+
+Output: outputs/weekly-note-YYYY-WW.md (and optional PDF).
+
+Clarifying questions for you:
+
+What tone should the note have: neutral and factual, or more urgent?
+Should each action idea name an owner (Product, Support, Growth) and a metric to watch?
+Should the note include a one-line comparison with the previous week within the word limit?
+Step 8: Create the email draft | ~2–3 hrs
+What we're doing: Build an email with the note as the body and save it as a draft in your own Gmail.
+
+Why it matters (PM lens): The draft is the "last mile" that makes the note usable by a team without opening a new tool.
+
+Tools & tech: Google Cloud Console (enable Gmail API, OAuth client), google-api-python-client, google-auth-oauthlib, scope for composing drafts, GitHub Secrets for credentials. Watch out: refresh tokens for OAuth apps in "testing" status can expire after about 7 days. Fallback: generate an .eml file or mailto: link and screenshot it.
+
+Subject example: Groww Weekly Review Pulse – Week 38, 2026
+
+Output: A draft in your Gmail plus a screenshot and the email text in the repo.
+
+Clarifying questions for you:
+
+Which email address should receive the draft?
+Are you comfortable creating a Google Cloud project, or should we start with the .eml fallback?
+Any preferred subject format or recipient alias?
+Step 9: Build the app, host it, and automate | ~3–5 hrs
+What we're doing: Wrap the pipeline in a simple Streamlit app (choose date window, run, view the note, create the draft), deploy it, and schedule the weekly run.
+
+Why it matters (PM lens): The reviewer needs a working link. Automation is what makes it a product workflow rather than a script.
+
+Tools & tech: Streamlit; Streamlit Community Cloud (connected to GitHub); GitHub Actions weekly cron to run the pipeline and commit the latest note; Vercel to auto-deploy a lightweight public page of the latest note from the repo (see Section 8). Secrets go in Streamlit and GitHub secrets, never in code. The public UI shows only redacted samples, never raw reviews.
+
+Output: Working prototype link, a Vercel page with the latest pulse, and a scheduled workflow.
+
+Clarifying questions for you:
+
+Do you agree with Option A in Section 8, or would you rather choose B or C?
+Do you want scheduled automation, or is a manual "Run" button enough for submission?
+Is a fully public link fine, or should the app have a simple password?
