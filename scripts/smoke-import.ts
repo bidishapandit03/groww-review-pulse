@@ -1,12 +1,25 @@
-import { importReviews } from "@/lib/imports";
+import { fetchFreshReviews, mergeCorpus, sliceWindow } from "@/lib/imports";
+import { CORPUS_KEY } from "@/lib/pipeline/types";
+import { readJson, writeJson } from "@/lib/state";
+import type { Review } from "@/lib/types";
 
+/** Manual diagnostic: pull both stores, merge into the private corpus, slice the
+ *  window. Writes raw reviews to the private state store (gitignored locally). */
 async function main() {
-  const { reviews, coverage } = await importReviews(8);
-  console.log("imported:", reviews.length);
+  const fresh = await fetchFreshReviews();
+  const existing = (await readJson<Review[]>(CORPUS_KEY)) ?? [];
+  const corpus = mergeCorpus(existing, fresh);
+  await writeJson(CORPUS_KEY, corpus);
+
+  const { reviews, coverage } = sliceWindow(corpus, 8);
+  console.log("fetched:", fresh.length, "| corpus:", corpus.length, "| in window:", reviews.length);
   console.log("coverage:", JSON.stringify(coverage));
   console.log(
     "by source:",
-    reviews.reduce((a, r) => ((a[r.source] = (a[r.source] ?? 0) + 1), a), {} as Record<string, number>),
+    reviews.reduce<Record<string, number>>((a, r) => {
+      a[r.source] = (a[r.source] ?? 0) + 1;
+      return a;
+    }, {}),
   );
   console.log(
     "oldest 3:",
