@@ -86,7 +86,7 @@ DONE — PHASE 4: Theme legend + gold set (PRD Step 4)
 ========================================================================
 Goal: Lock the 5 fixed themes so weeks stay comparable, and hand-label a
 ~50-review "gold set" to measure tagging accuracy later.
-Commit: (phase 4 commit hash)
+Commit: a31ccf3 "feat(goldset): theme legend confirmed + 50-review gold set"
 
 Built:
 - scripts/gold-set.ts — stratified sampler (over-samples 1-star: complaints
