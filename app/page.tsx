@@ -126,7 +126,7 @@ export default async function Home() {
                 <div className="themeCard" key={t.theme}>
                   <div className="themeTop">
                     <div className="themeLabel">
-                      <span style={{ color: "#f59f00", fontWeight: 800, marginRight: 8 }}>
+                      <span style={{ color: "var(--brand-deep)", fontWeight: 800, marginRight: 8 }}>
                         {i + 1}
                       </span>
                       {themeLabel(t.theme)}

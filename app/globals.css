@@ -1,13 +1,13 @@
 :root {
-  /* Groww-inspired palette: warm amber brand, dark ink, cool gray canvas */
-  --bg: #f6f7f9;
+  /* Groww-inspired palette: green brand, dark ink, cool gray canvas */
+  --bg: #f5f7f6;
   --surface: #ffffff;
   --ink: #1b1f27;
   --ink-2: #6b7179;
   --ink-3: #9aa0a8;
-  --brand: #ffb300;
-  --brand-deep: #f59f00;
-  --brand-bg: #fff4d6;
+  --brand: #0da660;
+  --brand-deep: #0b8a50;
+  --brand-bg: #e3f6ec;
   --pos: #0d9e57;
   --pos-bg: #e5f6ed;
   --neg: #e63a2e;
@@ -95,7 +95,7 @@ a {
 
 .weekChip {
   background: var(--brand-bg);
-  color: #8a5a00;
+  color: #0a6b3d;
   font-size: 12px;
   font-weight: 700;
   padding: 6px 12px;
@@ -384,7 +384,7 @@ a {
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #5c3d00;
+  color: #0a5c33;
   background: var(--brand-bg);
   padding: 3px 8px;
   border-radius: 7px;
@@ -413,15 +413,15 @@ a {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: linear-gradient(135deg, #fff8e6 0%, #fffdf5 100%);
-  border: 1px solid #fbdea3;
+  background: linear-gradient(135deg, #e7f7ee 0%, #f2fbf6 100%);
+  border: 1px solid #b7e6ce;
   border-radius: var(--radius);
   padding: 20px;
 }
 
 .mailHint {
   font-size: 13px;
-  color: #7a5b16;
+  color: #0d6a3d;
   line-height: 1.5;
 }
 
@@ -448,11 +448,11 @@ a {
 .btnSend {
   background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(245, 159, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(11, 138, 80, 0.35);
 }
 
 .btnSend:hover {
-  box-shadow: 0 6px 16px rgba(245, 159, 0, 0.45);
+  box-shadow: 0 6px 16px rgba(11, 138, 80, 0.45);
   transform: translateY(-1px);
 }
 
