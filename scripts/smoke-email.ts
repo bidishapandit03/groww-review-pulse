@@ -26,9 +26,12 @@ async function main() {
   const out = path.join(process.cwd(), "outputs", "weekly-email-sample.eml");
   await writeFile(out, eml, "utf8");
 
-  console.log(out);
-  console.log(mailtoUrl(note));
-  console.log(eml.slice(0, 600));
+  console.log(`Wrote ${out}`);
+  console.log("\n1) Open the .eml in a mail client (Apple Mail/Outlook) and send:");
+  console.log(`   open "${out}"`);
+  console.log("\n2) Or click/run this mailto link (opens Gmail/web mail pre-filled):");
+  console.log(mailtoUrl(note, undefined, markdown));
+  console.log("\n3) Or copy-paste from the markdown:");
 }
 
 main().catch((err) => {

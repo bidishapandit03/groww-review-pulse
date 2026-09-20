@@ -3,13 +3,13 @@
 Window: 8 weeks | 50 reviews | avg 2.34★
 
 ## 1. Trading & Order Execution — 7 reviews, avg 1.0★, WoW +33%
-Order execution delays and interface lag persist; user complaints spike
+Order execution issues persist; latency and failures reported
 
 ## 2. Charges, Statements & Reports — 6 reviews, avg 1.5★, WoW -67%
-Hidden fees and transaction report inaccuracies cause frustration
+Hidden fees and transaction report inaccuracies cause user dissatisfaction
 
 ## 3. App Performance & Support — 5 reviews, avg 1.2★, WoW -50%
-24/7 support unresponsive; customer service reliability questioned
+Customer support unresponsive; 24/7 claims ignored
 
 ## Voices
 > service not good, charges high...interface laging.. — 1★ Play Store
@@ -17,6 +17,6 @@ Hidden fees and transaction report inaccuracies cause frustration
 > The customer service is worst. I don't get any reply even though it say 24/7 support — 1★ Play Store
 
 ## Actions
-1. **Product** — Audit order execution latency and interface performance · watch: order delay %
-2. **Support** — Review fee transparency and statement reconciliation process · watch: report accuracy rate
-3. **Growth** — Implement 24/7 support response tracking and escalation · watch: reply resolution time
+1. **Product** — Audit order execution latency and failure logs · watch: order fail rate
+2. **Product** — Review fee disclosure and transaction report validation · watch: fee accuracy rate
+3. **Support** — Implement 24-hour SLA for support ticket responses · watch: response time SLA

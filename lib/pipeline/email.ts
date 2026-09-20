@@ -90,9 +90,10 @@ export function buildEml(
   return headers.join("\r\n") + "\r\n\r\n" + qpEncode(markdown) + (markdown.endsWith("\n") ? "" : "\r\n");
 }
 
-/** A clickable mailto: link with the note in the subject + body (no draft). */
-export function mailtoUrl(note: Note, to?: string): string {
+/** A clickable mailto: link, optionally prefilled with the note body. */
+export function mailtoUrl(note: Note, to?: string, body?: string): string {
   const recipient = to ?? emailRecipient();
   const q = (s: string) => encodeURIComponent(s).replace(/%20/g, "+");
-  return `mailto:${recipient}?subject=${q(emailSubject(note))}&body=${q(note.weekLabel)}`;
+  const bodyPart = body ? `&body=${q(body)}` : "";
+  return `mailto:${recipient}?subject=${q(emailSubject(note))}${bodyPart}`;
 }

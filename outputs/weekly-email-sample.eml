@@ -1,5 +1,5 @@
 MIME-Version: 1.0
-Date: Sun, 20 Sep 2026 08:14:37 GMT
+Date: Sun, 20 Sep 2026 08:23:11 GMT
 To: bidishapandit03@gmail.com
 Subject: Groww Weekly Review Pulse - 2026-W38
 Content-Type: text/plain; charset="UTF-8"
@@ -11,18 +11,16 @@ Window:=208=20weeks=20|=2050=20reviews=20|=20avg=202.34=E2=98=85
 
 ##=201.=20Trading=20&=20Order=20Execution=20=E2=80=94=207=20reviews,=20avg=
 =201.0=E2=98=85,=20WoW=20+33%
-Order=20execution=20delays=20and=20interface=20lag=20persist;=20user=20compl=
-aints=20spike
+Order=20execution=20issues=20persist;=20latency=20and=20failures=20reported
 
 ##=202.=20Charges,=20Statements=20&=20Reports=20=E2=80=94=206=20reviews,=20a=
 vg=201.5=E2=98=85,=20WoW=20-67%
-Hidden=20fees=20and=20transaction=20report=20inaccuracies=20cause=20frustrat=
-ion
+Hidden=20fees=20and=20transaction=20report=20inaccuracies=20cause=20user=20d=
+issatisfaction
 
 ##=203.=20App=20Performance=20&=20Support=20=E2=80=94=205=20reviews,=20avg=
 =201.2=E2=98=85,=20WoW=20-50%
-24/7=20support=20unresponsive;=20customer=20service=20reliability=20question=
-ed
+Customer=20support=20unresponsive;=2024/7=20claims=20ignored
 
 ##=20Voices
 >=20service=20not=20good,=20charges=20high...interface=20laging..=20=E2=80=
@@ -36,9 +34,9 @@ is=20holding=20transaction=20is=20indraday=20=F0=9F=98=94=F0=9F=98=94=F0=9F=
 =20Store
 
 ##=20Actions
-1.=20**Product**=20=E2=80=94=20Audit=20order=20execution=20latency=20and=20i=
-nterface=20performance=20=C2=B7=20watch:=20order=20delay=20%
-2.=20**Support**=20=E2=80=94=20Review=20fee=20transparency=20and=20statement=
-=20reconciliation=20process=20=C2=B7=20watch:=20report=20accuracy=20rate
-3.=20**Growth**=20=E2=80=94=20Implement=2024/7=20support=20response=20tracki=
-ng=20and=20escalation=20=C2=B7=20watch:=20reply=20resolution=20time
+1.=20**Product**=20=E2=80=94=20Audit=20order=20execution=20latency=20and=20f=
+ailure=20logs=20=C2=B7=20watch:=20order=20fail=20rate
+2.=20**Product**=20=E2=80=94=20Review=20fee=20disclosure=20and=20transaction=
+=20report=20validation=20=C2=B7=20watch:=20fee=20accuracy=20rate
+3.=20**Support**=20=E2=80=94=20Implement=2024-hour=20SLA=20for=20support=20t=
+icket=20responses=20=C2=B7=20watch:=20response=20time=20SLA
