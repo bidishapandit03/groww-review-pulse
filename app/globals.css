@@ -451,6 +451,33 @@ a {
   cursor: pointer;
 }
 
+.runBtnRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btnGhost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnGhost:hover {
+  border-color: var(--neg);
+  color: var(--neg);
+}
+
+.sectionHint.err {
+  color: var(--neg);
+}
+
 .runBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;

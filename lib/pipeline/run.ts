@@ -57,6 +57,19 @@ export class ConflictError extends Error {
   }
 }
 
+/**
+ * Runs whose updatedAt is older than this are considered abandoned (a Vercel
+ * function can be killed mid-run on the Hobby 60s cap) and allow a new run.
+ */
+const STALE_RUN_MS = 10 * 60_000;
+
+/**
+ * Fresh reviews tagged per run. First-run backlogs are large and tagging is
+ * the slowest step (LLM), so slice the diff — the rest get tagged on the next
+ * run. Keeps each invocation inside Vercel Hobby's 60s ceiling.
+ */
+const MAX_TAG_PER_RUN = 200;
+
 const stateSchema = pipelineRunSchema.extend({ updatedAt: z.string() });
 
 function isoNow(): string {
@@ -101,11 +114,36 @@ export function diffNewReviews<T extends { id: string }>(
 
 async function assertIdle(store: StateStore): Promise<void> {
   const state = await readState(store);
-  if (state && state.step !== "idle") {
-    throw new ConflictError(
-      `Pipeline already in progress (run ${state.runId}, step ${state.step}). Wait for it to finish or reset state.`,
+  if (!state || state.step === "idle") return;
+  const age = Date.now() - new Date(state.updatedAt).getTime();
+  // A Vercel function can be killed mid-run (Hobby 60s cap), leaving a stale
+  // lock. Anything older than STALE_RUN_MS is abandoned — let a new run in.
+  if (Number.isNaN(age) || age > STALE_RUN_MS) {
+    console.warn(
+      `[pipeline] treating run ${state.runId} (step ${state.step}, updated ${state.updatedAt}) as stale`,
     );
+    return;
   }
+  throw new ConflictError(
+    `Pipeline already in progress (run ${state.runId}, step ${state.step}). ` +
+      `Wait for it to finish, hit reset if it is stuck, or retry after ${Math.ceil(
+        (STALE_RUN_MS - age) / 1000,
+      )}s.`,
+  );
+}
+
+/** Clear any in-flight tag so the next invocation starts clean. */
+export async function resetState(store: StateStore): Promise<void> {
+  const runId = newId();
+  await writeState(store, {
+    runId,
+    createdAt: isoNow(),
+    updatedAt: isoNow(),
+    windowWeeks: WINDOW_MIN_WEEKS,
+    step: "idle",
+    meta: emptyMeta(runId, WINDOW_MIN_WEEKS),
+    lastError: null,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -139,7 +177,7 @@ export async function redactStep(store: StateStore): Promise<StepResult> {
 export async function tagStep(store: StateStore, deps: RunDeps = {}): Promise<StepResult> {
   const redacted = (await store.read<Review[]>(REDACT_KEY)) ?? [];
   const prior = (await store.read<TaggedReview[]>(TAGGED_KEY)) ?? [];
-  const fresh = diffNewReviews(redacted, prior);
+  const fresh = diffNewReviews(redacted, prior).slice(0, MAX_TAG_PER_RUN);
   const freshTagged =
     fresh.length > 0 ? await tagReviews(fresh, { batchSize: deps.batchSize }) : [];
   const merged = [...prior, ...freshTagged];

@@ -68,6 +68,8 @@ export default async function Home() {
   const { note, aggregate: agg, selectedQuotes, lastRun, demo } = pulse;
   const weekShort = note.weekLabel.split("W")[1] ?? note.weekLabel;
   const adminRequired = Boolean(process.env.ADMIN_PASSWORD?.trim());
+  // A run that never reached idle (e.g. killed by the Vercel 60s cap).
+  const stuck = Boolean(lastRun && lastRun.step !== "idle");
 
   const { markdown } = composeMarkdown(note, selectedQuotes, agg);
   const mailto = mailtoUrl(note, undefined, markdown);
@@ -182,15 +184,21 @@ export default async function Home() {
         <section className="runSection">
           <div className="sectionHead">
             <h2 className="sectionTitle">Run pipeline</h2>
-            <span className="sectionHint">
-              {lastRun
-                ? lastRun.lastError
-                  ? `last run ${lastRun.runId} — failed at ${lastRun.step}: ${lastRun.lastError}`
-                  : `last run ${lastRun.runId} — ${lastRun.step}`
-                : "no run yet"}
-            </span>
+            {!stuck && (
+              <span className="sectionHint">
+                last run {lastRun ? lastRun.runId : "— — —"} —{" "}
+                {lastRun ? lastRun.step : "no run yet"}
+              </span>
+            )}
+            {stuck && (
+              <span className="sectionHint err">
+                run {lastRun?.runId} stuck at {lastRun?.step} — it was likely
+                killed by the 60s Vercel limit. Reset below, or a new run is
+                auto-allowed after 10 min.
+              </span>
+            )}
           </div>
-          <RunPanel adminRequired={adminRequired} />
+          <RunPanel adminRequired={adminRequired} stuck={stuck} />
         </section>
 
         <section className="mailSection">

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { adminGate } from "@/lib/pipeline/gate";
-import { ConflictError, diffNewReviews, runPulse, runSingleStep } from "@/lib/pipeline/run";
+import {
+  ConflictError,
+  diffNewReviews,
+  resetState,
+  runPulse,
+  runSingleStep,
+} from "@/lib/pipeline/run";
 import type { StateStore, StepResult } from "@/lib/pipeline/run";
 import { AGGREGATE_KEY, CORPUS_KEY, NOTE_KEY, STATE_KEY, TAGGED_KEY } from "@/lib/pipeline/types";
 import type { AggregateResult, PipelineState } from "@/lib/pipeline/types";
@@ -94,15 +100,16 @@ describe("runPulse", () => {
   });
 
   it("rejects a concurrent run", async () => {
+    const now = new Date().toISOString();
     const state: PipelineState = {
       runId: "old",
-      createdAt: "2026-09-20T00:00:00.000Z",
-      updatedAt: "2026-09-20T00:00:00.000Z",
+      createdAt: now,
+      updatedAt: now, // fresh (< STALE_RUN_MS) → must conflict
       windowWeeks: 8,
       step: "tag",
       meta: {
         runId: "old",
-        startedAt: "2026-09-20T00:00:00.000Z",
+        startedAt: now,
         windowWeeks: 8,
         stores: ["appstore", "playstore"],
         reviewsImported: 0,
@@ -113,6 +120,58 @@ describe("runPulse", () => {
     };
     const store = memStore({ [STATE_KEY]: state });
     await expect(runPulse({ store })).rejects.toThrow(ConflictError);
+  });
+
+  it("treats an old run as stale and starts a fresh one", async () => {
+    const stale = "2026-01-01T00:00:00.000Z"; // far older than STALE_RUN_MS
+    const state: PipelineState = {
+      runId: "stale",
+      createdAt: stale,
+      updatedAt: stale,
+      windowWeeks: 8,
+      step: "tag",
+      meta: {
+        runId: "stale",
+        startedAt: stale,
+        windowWeeks: 8,
+        stores: ["appstore", "playstore"],
+        reviewsImported: 0,
+        reviewsAfterRedaction: 0,
+        coverage: { appstore: null, playstore: null },
+      },
+      lastError: null,
+    };
+    const store = memStore({ [STATE_KEY]: state });
+    const outcome = await runPulse({ store, steps: fakeSteps() });
+    expect(outcome.status).toBe("done");
+  });
+
+  it("resetState clears a stuck run back to idle", async () => {
+    const now = new Date().toISOString();
+    const store = memStore({
+      [STATE_KEY]: {
+        runId: "stuck",
+        createdAt: now,
+        updatedAt: now,
+        windowWeeks: 8,
+        step: "redact",
+        meta: {
+          runId: "stuck",
+          startedAt: now,
+          windowWeeks: 8,
+          stores: ["appstore", "playstore"],
+          reviewsImported: 0,
+          reviewsAfterRedaction: 0,
+          coverage: { appstore: null, playstore: null },
+        },
+        lastError: null,
+      } satisfies PipelineState,
+    });
+    await resetState(store);
+    const state = (await store.read<PipelineState>(STATE_KEY))!;
+    expect(state.step).toBe("idle");
+    expect(state.lastError).toBeNull();
+    expect(state.runId).not.toBe("stuck");
   });
 
   it("records lastError and rethrows when a step fails", async () => {
