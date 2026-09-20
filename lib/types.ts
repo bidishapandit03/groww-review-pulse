@@ -1,3 +1,4 @@
+import { OTHER_BUCKET, THEME_IDS } from "@/lib/constants";
 import { z } from "zod";
 
 /** Reviews are normalized to these four fields. Author/username is never stored. */
@@ -13,6 +14,15 @@ export const reviewSchema = z.object({
 
 export type Review = z.infer<typeof reviewSchema>;
 export const ReviewListSchema = z.array(reviewSchema);
+
+/** One of the 5 fixed themes, or the hidden "other" bucket. */
+export const tagThemeSchema = z.enum([...THEME_IDS, OTHER_BUCKET]);
+export type TagTheme = z.infer<typeof tagThemeSchema>;
+
+/** A review that has been assigned exactly one theme. */
+export const taggedReviewSchema = reviewSchema.extend({ theme: tagThemeSchema });
+export type TaggedReview = z.infer<typeof taggedReviewSchema>;
+export const TaggedReviewListSchema = z.array(taggedReviewSchema);
 
 export interface ImportResult {
   reviews: Review[];

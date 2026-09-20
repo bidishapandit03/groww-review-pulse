@@ -105,7 +105,42 @@ Open decision: gold set labels were drafted by the assistant for the user to
 review/correct (edit data/sample/gold-set.json, keep tests green).
 
 ========================================================================
-NEXT — PHASE 5: Tag themes with Mistral (PRD Step 5)
+DONE — PHASE 5: Tag themes with Mistral (PRD Step 5)
+========================================================================
+Goal: Each review gets exactly one theme via Mistral; all counts/stats are
+computed in code, never by the LLM.
+Commit: (phase 5 commit hash)
+
+Built:
+- lib/llm.ts — thin Mistral transport: auth guard, JSON mode, retry/backoff
+  (429 detection via statusCode too), content-chunk flattening.
+- lib/types.ts — tagThemeSchema (5 themes + "other"), taggedReviewSchema:
+  Review + theme. Validated with zod.
+- lib/pipeline/tag.ts — tagReviews() batches REDACTED reviews (batch size 40,
+  throttle between batches). Redaction happens INSIDE the tag path before any
+  prompt is built (PRD FR2). parseTagResponse validates every theme with zod;
+  malformed output fails the batch loudly. Pure helpers (chunkReviews,
+  buildTagLines, extractJson, parseTagResponse, tagBatch) are unit-tested
+  without any network.
+- scripts/eval-tag.ts — accuracy check vs the 50-review gold set. Manual:
+  npx tsx scripts/eval-tag.ts [minAccuracy]. Writes data/sample/tagged-gold.json.
+- tests/tag.test.ts — 14 pure tests (batching, redaction-before-prompt, JSON
+  parsing/validation, legend sanity).
+
+IMPORTANT — model switch required by account tier:
+  mistral-small-latest -> 429, mistral-large-latest -> 403 on the free tier.
+  Available: open ministral models. MISTRAL_TAG_MODEL = ministral-8b-latest,
+  MISTRAL_NOTE_MODEL = ministral-8b-latest for now. Upgrade the Mistral plan
+  to restore mistral-small/large (see lib/constants.ts comment).
+
+Measured accuracy (ministral-8b-latest on the 50-review gold set): 92% (46/50).
+  onboarding_kyc 100% | payments_withdrawals 100% | trading_orders 100% |
+  charges_statements 86% | app_support 63% | other 100%.
+  Confusions were genuinely ambiguous reviews (account deletion, vague update
+  complaint, mixed complaints, demat-reflect vs support), not clear model errors.
+
+========================================================================
+NEXT — PHASE 6: Top 3 themes + candidate quotes (PRD Step 6)
 ========================================================================
 
 Theme legend (already in lib/constants.ts, to be confirmed against real data):

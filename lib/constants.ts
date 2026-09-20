@@ -63,8 +63,12 @@ export const IOS_APP_ID = "1404871703";
 export const ANDROID_PACKAGE = "com.nextbillion.groww";
 export const COUNTRY = "in";
 
-export const MISTRAL_TAG_MODEL = "mistral-small-latest";
-export const MISTRAL_NOTE_MODEL = "mistral-large-latest";
+// Mistral model names. The free/experimental tier on this account rejects
+// mistral-small-latest (429) and mistral-large-latest (403); the open
+// ministral models are available. Upgrade the plan to switch back to size  +
+// mistral-small / mistral-large.
+export const MISTRAL_TAG_MODEL = "ministral-8b-latest";
+export const MISTRAL_NOTE_MODEL = "ministral-8b-latest";
 
 export const PIPELINE_STEPS = [
   "import",
