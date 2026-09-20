@@ -102,7 +102,7 @@ app_support 63%, other 100%. Misses were ambiguous reviews, not clear errors.
 ========================================================================
 DONE — PHASE 6: Top 3 themes + candidate quotes (PRD Step 6)
 ========================================================================
-Commit: (phase 6 commit hash)
+Commit: 91874bb "feat(aggregate): rank top themes + shortlist quotes"
 
 Ranking formula (computed in code, weights tunable):
   Impact = 0.5 * volume + 0.3 * negativity + 0.2 * momentum
