@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "pii:gate": "tsx scripts/pii-gate.ts",
     "tag:eval": "tsx scripts/eval-tag.ts",
+    "aggregate:smoke": "tsx scripts/smoke-aggregate.ts",
     "import:smoke": "tsx scripts/smoke-import.ts"
   },
   "dependencies": {

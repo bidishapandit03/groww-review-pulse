@@ -4,303 +4,209 @@ Stack: Next.js + TypeScript on Vercel (PRD Option C). All phases committed to gi
 on `main`. Raw review data is NEVER committed (lives in Vercel Blob in prod,
 data/raw/ locally — both gitignored).
 
+------------------------------------------------------------------------
+PROGRESS AT A GLANCE
+------------------------------------------------------------------------
+ 1 Repo scaffold        DONE  9042d2c
+ 2 Import reviews       DONE  bebe62e
+ 3 Redact PII (CI gate) DONE  dab8662
+ 4 Theme legend+goldset DONE  a31ccf3
+ 5 Mistral tagging      DONE  015a1a1
+ 6 Top themes+quotes    DONE  (phase 6 commit)
+ 7 Weekly note          NEXT
+ 8 Email draft          NEXT
+ 9 App + hosting+cron   NEXT
+
 ========================================================================
 DONE — PHASE 1: Repo scaffold (PRD Step 1)
 ========================================================================
-Goal: A clean, documented repo that a reviewer can open and run.
 Commit: 9042d2c "chore: scaffold Next.js project and pipeline infra"
 
-Built:
-- Next.js 16 + React 19 project (TypeScript strict).
-- lib/constants.ts  — theme legend (5 themes + hidden "other"), note limits
-  (3 themes / 3 quotes / 3 actions, <=250 words), quote word bound (8-25),
-  window range (8-12 weeks), store ids, Mistral model names, pipeline steps.
-- lib/types.ts      — Review schema (id, source, rating, title, text, date),
-  RunMeta schema, newId().
-- lib/state.ts      — persistent store: Vercel Blob (private) in prod,
-  local JSON under data/raw/ in dev. readJson / writeJson / writePublic / removeJson.
-- lib/dates.ts      — toDateOnly, weeksAgoIso, isoWeek, isoYearWeek.
-- .env.example      — documents MISTRAL_API_KEY, BLOB_READ_WRITE_TOKEN,
-  GMAIL_* vars, ADMIN_PASSWORD, GH_PAT (real values never committed).
-- vercel.json       — cron scheduled: Monday 09:00 UTC -> /api/cron/pulse.
-- AGENTS.md         — PRD hard rules: 5 themes, 3/3/3 + <=250 words, no PII,
-  exact values computed in code, raw data never committed.
+- Next.js 16 + React 19 (TS strict). lib/constants.ts (theme legend, limits,
+  window, models, step order), lib/types.ts (Review/RunMeta schemas),
+  lib/state.ts (Vercel Blob in prod / data/raw local JSON in dev),
+  lib/dates.ts (toDateOnly, weeksAgoIso, isoWeek, isoYearWeek),
+  .env.example (secret names only), vercel.json cron (Mon 09:00 UTC),
+  AGENTS.md (PRD hard rules).
 
 ========================================================================
 DONE — PHASE 2: Import reviews (PRD Step 2)
 ========================================================================
-Goal: Pull public reviews from both stores into one normalized corpus and
-accumulate enough history to reach the 8-week window.
 Commit: bebe62e "feat(import): fetch reviews from both public stores"
 
-Built:
-- lib/imports/appstore.ts — Apple public customer-reviews RSS (India store,
-  app id 1404871703), up to 10 pages x ~50, newest only. Author field is
-  deliberately never read.
-- lib/imports/playstore.ts — google-play-scraper (public pages, no login),
-  package com.nextbillion.groww, newest sort, up to ~2000 reviews.
-- lib/imports/index.ts — orchestrator. Refactored (phase 3) into PURE
-  functions so each pipeline step can own its own state:
-    * fetchFreshReviews() -> Review[]   (fetch both stores in parallel,
-                                           allSettled, throw only if both fail)
-    * mergeCorpus(existing, fresh)      (dedup by id, fresh data wins)
-    * sliceWindow(corpus, weeks)        (filter to WindowResult with per-store
-                                           coverage = oldest date)
-- scripts/smoke-import.ts — manual diagnostic: fetch -> merge -> slice 8 weeks,
-  prints counts, coverage, oldest/newest 3.
-
-Data lives at: data/raw/pipeline/corpus.json (local) or Blob key pipeline/corpus.json (prod).
-Observed coverage: ~2.5 weeks back (public stores cap what they expose), so the
-corpus grows with each weekly run toward the 8-week window.
+- lib/imports/appstore.ts — Apple public RSS (India, id 1404871703), ~500 reviews.
+- lib/imports/playstore.ts — google-play-scraper, ~2000 reviews, no login.
+- lib/imports/index.ts — pure functions: fetchFreshReviews() -> mergeCorpus() ->
+  sliceWindow() (per-store coverage = oldest date).
+- scripts/smoke-import.ts — manual diagnostic.
+- Corpus at data/raw/pipeline/corpus.json (2500 reviews, raw, gitignored).
+- Coverage ~2.5-3 weeks back; corpus grows each weekly run toward 8 weeks.
 
 ========================================================================
 DONE — PHASE 3: Clean data and redact PII (PRD Step 3)
 ========================================================================
-Goal: Mask user-identifying details before anything reaches an LLM, a store,
-or a file. PII handling is a product requirement (PRD G3), not an afterthought.
 Commit: dab8662 "feat(redact): clean & redact PII with CI gate"
 
-Built:
-- lib/redact.ts — idempotent masking:
-    redactText(text)   — mask URLs, www links, emails, +91 phones, plain 10-digit
-                          Indian mobiles, spaced phones, PAN, Aadhaar groups,
-                          12+ digit runs, UPI IDs, @handles -> "[REDACTED]".
-    containsPii(text)  — detection patterns + extra spacing variants.
-    redactReview / redactReviews — mask title+text, drop reviews with no
-                          content left.
-- tests/redact.test.ts — 21 cases incl. idempotency, clean-text passthrough,
-  mask-literal safety. Passing.
-- scripts/pii-gate.ts — scans tracked data/sample + outputs for residual PII;
-  exits non-zero on any hit.
-- .github/workflows/ci.yml — CI on push/PR: npm ci --legacy-peer-deps, typecheck,
-  vitest, pii:gate.
-- vitest.config.ts -> vitest.config.mts migration.
-- package.json — scripts: test, test:watch, typecheck, lint, pii:gate.
-- lib/pipeline/types.ts — shared pipeline types & storage keys:
-    CORPUS_KEY, STATE_KEY, TAGGED_KEY, AGGREGATE_KEY, NOTE_KEY,
-    PipelineState (runId, step, meta, lastError), pipelineRunSchema,
-    AggregateResult, CandidateQuote.
+- lib/redact.ts — idempotent redactText / redactReviews / containsPii: URLs,
+  emails, phones (+91 & plain & spaced), PAN, Aadhaar, 12+ digit runs,
+  UPI IDs, @handles -> [REDACTED].
+- scripts/pii-gate.ts — scans tracked data/sample + outputs; CI failure on hit.
+- .github/workflows/ci.yml — typecheck + vitest + pii:gate on push/PR.
+- lib/pipeline/types.ts — storage keys, PipelineState, AggregateResult,
+  CandidateQuote, pipelineRunSchema.
+- Refactored imports into pure functions so each pipeline step owns its state.
 
 ========================================================================
 DONE — PHASE 4: Theme legend + gold set (PRD Step 4)
 ========================================================================
-Goal: Lock the 5 fixed themes so weeks stay comparable, and hand-label a
-~50-review "gold set" to measure tagging accuracy later.
 Commit: a31ccf3 "feat(goldset): theme legend confirmed + 50-review gold set"
 
-Built:
-- scripts/gold-set.ts — stratified sampler (over-samples 1-star: complaints
-  drive the pulse), seeded PRNG for reproducibility, REDACTS everything before
-  writing. Usage: npx tsx scripts/gold-set.ts [count] [seed].
-- data/sample/gold-set.json — 50 hand-labeled entries (COMMITTED, redacted
-  only, no review ids). Label spread:
-    other 27 | app_support 8 | charges_statements 7 | trading_orders 6 |
-    payments_withdrawals 1 | onboarding_kyc 1
-- prompts/tag_themes.txt — verbatim theme definitions + tie-break rules +
-  JSON output contract that Phase 5 will send to the LLM.
-- tests/goldset.test.ts — CI guard: size ~50, unique ids, valid labels, both
-  stores, all ratings, zero PII, every theme present.
+Theme legend (lib/constants.ts), locked + hidden "other" bucket:
+  1. onboarding_kyc       — Demat opening, KYC/e-sign delays, verification
+  2. payments_withdrawals — UPI add-funds failures, bank linking, payouts, SIP
+  3. trading_orders       — Order failures, market-hours lag, F&O, charts, data
+  4. charges_statements   — Brokerage, P&L/tax statements, contract notes
+  5. app_support          — Crashes, login/OTP, slowness, support response
 
-Open decision: gold set labels were drafted by the assistant for the user to
-review/correct (edit data/sample/gold-set.json, keep tests green).
+- scripts/gold-set.ts — seeded stratified sampler (over-samples 1-star),
+  redacts before writing. Usage: npx tsx scripts/gold-set.ts [count] [seed].
+- data/sample/gold-set.json — 50 hand-labeled entries, PII-free, committed.
+  Spread: other 27 | app_support 8 | charges 7 | trading 6 | payments 1 | kyc 1.
+- prompts/tag_themes.txt — verbatim theme definitions + tie-break rules + JSON contract.
+- tests/goldset.test.ts — CI guards (size, unique ids, valid labels, both
+  stores, all ratings, zero PII, every theme present).
+- Labels are a draft for user review (edit gold-set.json, keep tests green).
 
 ========================================================================
 DONE — PHASE 5: Tag themes with Mistral (PRD Step 5)
 ========================================================================
-Goal: Each review gets exactly one theme via Mistral; all counts/stats are
-computed in code, never by the LLM.
 Commit: 015a1a1 "feat(tag): theme tagging with Mistral — 92% gold-set accuracy"
 
+- lib/llm.ts — Mistral transport: auth guard, JSON mode, retry/backoff (429 via
+  statusCode), content-chunk flattening.
+- lib/types.ts — tagThemeSchema (5 + other), taggedReviewSchema (Review+theme).
+- lib/pipeline/tag.ts — tagReviews() batches (40/batch) REDACTED reviews;
+  redaction happens INSIDE the tag path before any prompt (PRD FR2).
+  parseTagResponse validates every theme with zod; malformed reply fails loudly.
+- scripts/eval-tag.ts — accuracy vs gold set: npx tsx scripts/eval-tag.ts [min].
+  Writes data/sample/tagged-gold.json. npm run tag:eval.
+- tests/tag.test.ts — 14 pure tests, no network.
+
+MODEL SWITCH (account tier): mistral-small-latest -> 429, mistral-large-latest
+-> 403 on this free tier. Available: open ministral models. Both constants now
+ministral-8b-latest (see lib/constants.ts comment). Upgrade plan to restore.
+
+Measured accuracy: 92% (46/50). kyc/payments/trading 100%, charges 86%,
+app_support 63%, other 100%. Misses were ambiguous reviews, not clear errors.
+
+========================================================================
+DONE — PHASE 6: Top 3 themes + candidate quotes (PRD Step 6)
+========================================================================
+Commit: (phase 6 commit hash)
+
+Ranking formula (computed in code, weights tunable):
+  Impact = 0.5 * volume + 0.3 * negativity + 0.2 * momentum
+    volume     = count / max(count over themes)   -> "how many users"
+    negativity = share of 1-3 star reviews        -> "how angry"
+    momentum   = clamped positive WoW growth (7d vs prior 7d) -> "how urgent"
+  Ties break by count. "other" never competes or surfaces.
+
+Quote policy (decision): include clear praise AND Hinglish if understandable.
+  Complaints rank first in the pool; praise stays eligible. Word bound 4-25.
+
 Built:
-- lib/llm.ts — thin Mistral transport: auth guard, JSON mode, retry/backoff
-  (429 detection via statusCode too), content-chunk flattening.
-- lib/types.ts — tagThemeSchema (5 themes + "other"), taggedReviewSchema:
-  Review + theme. Validated with zod.
-- lib/pipeline/tag.ts — tagReviews() batches REDACTED reviews (batch size 40,
-  throttle between batches). Redaction happens INSIDE the tag path before any
-  prompt is built (PRD FR2). parseTagResponse validates every theme with zod;
-  malformed output fails the batch loudly. Pure helpers (chunkReviews,
-  buildTagLines, extractJson, parseTagResponse, tagBatch) are unit-tested
-  without any network.
-- scripts/eval-tag.ts — accuracy check vs the 50-review gold set. Manual:
-  npx tsx scripts/eval-tag.ts [minAccuracy]. Writes data/sample/tagged-gold.json.
-- tests/tag.test.ts — 14 pure tests (batching, redaction-before-prompt, JSON
-  parsing/validation, legend sanity).
-
-IMPORTANT — model switch required by account tier:
-  mistral-small-latest -> 429, mistral-large-latest -> 403 on the free tier.
-  Available: open ministral models. MISTRAL_TAG_MODEL = ministral-8b-latest,
-  MISTRAL_NOTE_MODEL = ministral-8b-latest for now. Upgrade the Mistral plan
-  to restore mistral-small/large (see lib/constants.ts comment).
-
-Measured accuracy (ministral-8b-latest on the 50-review gold set): 92% (46/50).
-  onboarding_kyc 100% | payments_withdrawals 100% | trading_orders 100% |
-  charges_statements 86% | app_support 63% | other 100%.
-  Confusions were genuinely ambiguous reviews (account deletion, vague update
-  complaint, mixed complaints, demat-reflect vs support), not clear model errors.
-
-========================================================================
-NEXT — PHASE 6: Top 3 themes + candidate quotes (PRD Step 6)
-========================================================================
-
-Theme legend (already in lib/constants.ts, to be confirmed against real data):
-  1. onboarding_kyc    — Demat opening, KYC/e-sign delays, verification rejections
-  2. payments_withdrawals — UPI add-funds failures, bank linking, payout delays, SIP autopay
-  3. trading_orders    — Order failures, lag in market hours, F&O, charts, price data
-  4. charges_statements — Brokerage complaints, P&L and tax statements, contract notes
-  5. app_support       — Crashes, login/OTP issues, slowness, support response
-  + hidden "other" bucket — never surfaces in the note.
-
-Work:
-- Browse a sample of the corpus (2500 raw reviews) and refine theme definitions
-  to fit Groww reality.
-- scripts/gold-set.ts — sample reviews (redacted upload only) and export
-  data/sample/gold-set.json (committed, REDACTED only; raw data never committed).
-- prompts/tag_themes.txt — theme definitions verbatim text for the LLM.
-
-Output: confirmed legend, gold set committed, tag prompt written.
-
-Open decisions: adjust any themes? time to hand-label ~50 reviews?
-
-========================================================================
-NEXT — PHASE 5: Tag themes with Mistral (PRD Step 5)
-========================================================================
-Goal: Each review gets exactly one theme via mistral-small-latest; all
-counts/stats computed in code, never by the LLM.
-
-Work:
-- lib/llm.ts (or lib/mistral.ts) — shared Mistral client wrapper with
-  retry/backoff on 429 rate limits.
-- lib/pipeline/tag.ts — batch ~30-50 REDACTED review texts per call,
-  JSON output mode, zod validation of every response, throttle between calls.
-- lib/types.ts — add TaggedReview schema = Review + theme (ThemeId | "other").
-- Accuracy check vs gold set: test + reported metric (target >=80%).
-- Store tagged corpus at TAGGED_KEY (pipeline/tagged.json).
-
-Output: reviews tagged, theme_stats, accuracy vs gold set.
-
-Open decisions: one theme per review (recommended). Sentiment needed or is the
-star rating enough?
-
-========================================================================
-NEXT — PHASE 6: Top 3 themes + candidate quotes (PRD Step 6)
-========================================================================
-Goal: Rank themes to pick the top 3, and shortlist real quote candidates by id.
-
-Work:
-- lib/pipeline/aggregate.ts — compute in code:
-    * per-theme count and average rating
-    * week-over-week delta (current window vs previous week)
-    * ranking of top 3 themes via chosen formula
-    * quote shortlist: 8-25 words, PII-free, clear language, one per review
-- Types already exist: AggregateResult, CandidateQuote (lib/pipeline/types.ts).
-- Store at AGGREGATE_KEY (pipeline/aggregate.json).
-
-Output: top3.json / aggregate.json with ranked themes + candidate quote ids.
-
-Open decisions:
-  1. Ranking formula: by volume | by negativity | by week-over-week spike?
-  2. Quotes: complaints only, or include praise / Hinglish if clear?
+- lib/pipeline/aggregate.ts — computeThemeStats, rankThemes, shortlistQuotes,
+  aggregate(), wowDelta() (all pure; no LLM).
+- lib/dates.ts — daysAgoIso(). lib/constants.ts — QUOTE_MIN_WORDS=4,
+  QUOTE_MAX_WORDS=25, QUOTE_CANDIDATES_PER_THEME=6.
+- tests/aggregate.test.ts — 9 math tests (wow, rank, momentum, quote filter).
+- scripts/smoke-aggregate.ts — npm run aggregate:smoke (runs on tagged gold set;
+  verified real verbatim Hinglish quotes). NOTE: numbers are gold-set-only,
+  not the real window.
 
 ========================================================================
 NEXT — PHASE 7: Generate + validate weekly note (PRD Step 7)
 ========================================================================
-Goal: The one-page pulse with EXACTLY 3 themes, 3 verbatim quotes, 3 action
-ideas, <=250 words. LLM handles prose; code guarantees every exact value.
+Goal: one-page pulse with EXACTLY 3 themes, 3 verbatim quotes, 3 action ideas,
+<=250 words. LLM writes prose; code guarantees every exact value.
 
 Work:
-- lib/pipeline/note.ts — mistral-large-latest:
-    * writes one-line summary per top theme and 3 action ideas
-    * SELECTS quote IDs (code inserts exact quote text afterward, so quotes
-      are always verbatim and exist in the data)
-- prompts/write_note.txt — note-writing prompt (versioned, all prompt text
-  must live in prompts/*.txt).
-- lib/types.ts — add Note schema.
+- prompts/write_note.txt — note prompt: theme labels, counts, avg rating,
+  WoW delta, candidate quote IDs with text. Model SELECTS quote IDs; code
+  inserts the exact quote text (quotes always verbatim + exist in data).
+- lib/pipeline/note.ts — mistralChat (ministral-8b-latest for now), JSON mode,
+  zod validation of the note schema.
+- lib/types.ts — Note schema: weekLabel, 3 themes (label/count/avg/wow),
+  3 quote ids, 3 action strings, generatedAt, wordCount.
 - Validators (retry once with error message on failure):
-    * word count <=250
-    * exactly 3 themes / 3 quotes / 3 actions
-    * every quote exists in the corpus
-    * no PII (regex pass)
-- Write outputs/weekly-note-YYYY-WW.md + NOTE_KEY (pipeline/note.json).
+  word count <=250 | exactly 3/3/3 | quotes exist in corpus | no PII.
+- Outputs: outputs/weekly-note-YYYY-WW.md + NOTE_KEY.
 
-Output: validated weekly note + markdown artifact.
-
-Open decisions: tone (neutral-factual vs urgent)? name an owner + metric per
-action idea? include a one-line WoW comparison (must stay within word limit)?
+Open decisions: note tone (neutral-factual vs urgent)? owners + metrics per
+action? include one-line WoW comparison within word limit?
 
 ========================================================================
 NEXT — PHASE 8: Create the email draft (PRD Step 8)
 ========================================================================
-Goal: Note as an email DRAFT in the user's own Gmail (never sent).
+Goal: the note as a Gmail DRAFT (never sent) in the user's mailbox.
 
 Work:
-- scripts/authorize-gmail.ts — one-time OAuth flow -> refresh token.
-- lib/pipeline/email.ts — googleapis Gmail drafts.create with the note as
-  the body. Subject e.g. "Groww Weekly Review Pulse - Week 38, 2026".
-- Secrets: GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN,
-  GMAIL_RECIPIENT (in Vercel env / .env.local; .env.example documents names only).
-- Fallback if no Google Cloud project: generate .eml file or mailto: link +
-  screenshot saved in repo.
+- scripts/authorize-gmail.ts — one-time OAuth -> refresh token.
+- lib/pipeline/email.ts — googleapis Gmail drafts.create, note as body;
+  subject e.g. "Groww Weekly Review Pulse - Week 38, 2026".
+- Secrets: GMAIL_CLIENT_ID/SECRET/REFRESH_TOKEN/RECIPIENT in Vercel env /
+  .env.local (.env.example documents names only).
+- Fallback: .eml file or mailto: link + screenshot in repo.
 
-Output: a draft in Gmail + email text (and screenshot) in repo.
-
-Open decisions: which email address? build Google Cloud OAuth or use .eml fallback?
+Open decisions: which email address? Google Cloud OAuth or .eml fallback?
 
 ========================================================================
 NEXT — PHASE 9: App, hosting, automation (PRD Step 9)
 ========================================================================
-Goal: A live product a reviewer can open, plus scheduled weekly runs.
+Goal: a live product a reviewer can open plus scheduled weekly runs.
 
 Work:
-- app/api/pipeline/[step]/route.ts — one endpoint per step
-  (import/redact/tag/aggregate/note/email), each calling the independent
-  function in lib/.
-- app/api/cron/pulse/route.ts — orchestrator that runs steps in order and
-  updates PipelineState (state machine already typed in lib/pipeline/types.ts).
-- app/page.tsx — replace default template with:
-    * public "latest pulse" page (zero PII, only the note)
-    * admin run UI (guarded by ADMIN_PASSWORD), optional
-- Vercel cron already configured: 0 9 * * 1 (Monday 09:00 UTC).
-- CI already live (typecheck + tests + pii:gate on push/PR).
+- app/api/pipeline/[step]/route.ts — one endpoint per step; each calls the
+  independent function in lib/.
+- app/api/cron/pulse/route.ts — orchestrator running steps in order, updating
+  PipelineState (state machine already in lib/pipeline/types.ts).
+- app/page.tsx — replace default template: public "latest pulse" page (zero
+  PII) + admin run UI guarded by ADMIN_PASSWORD (optional).
+- vercel.json cron already set: 0 9 * * 1 → /api/cron/pulse.
+- CI already live (typecheck + tests + pii:gate).
 
-Output: working Vercel link, latest pulse page, scheduled weekly workflow.
-
-Open decisions: keep scheduled cron or manual "Run" button only? public or
-password-protected admin?
+Open decisions: keep weekly cron or manual "Run" only? public or protected UI?
 
 ========================================================================
-CROSS-CUTTING ENGINEERING CONVENTIONS (from AGENTS.md)
+CROSS-CUTTING RULES (AGENTS.md)
 ========================================================================
-- Pipeline steps = independent functions in lib/; endpoints in
-  app/api/pipeline/[step]/route.ts; orchestrator in app/api/cron/pulse/route.ts.
-- State via lib/state.ts (Blob in prod, local JSON in dev).
-- All external contracts validated with zod.
-- ALL prompt text lives in prompts/*.txt (never inline in code).
-- Tests in tests/, run with Vitest (npm test). Redaction + validation tests are
-  a CI gate.
-- Anything exact (counts, averages, WoW change, word count, quote text) is
-  computed in code, never by the LLM.
-- No PII ever: usernames, emails, phone numbers, IDs, PAN, UPI IDs, URLs,
-  12+ digit runs. Redact before any LLM call or file write.
-- Secrets only in Vercel env / .env.local; .env.example documents names, never values.
-- Screen real value: NEVER commit raw reviews; raw data lives in Blob (data/raw/ locally).
+- Pipeline steps = independent functions in lib/; endpoints in app/api/
+  pipeline/[step]/route.ts; orchestrator in app/api/cron/pulse/route.ts.
+- State via lib/state.ts (Blob prod / local JSON dev).
+- External contracts validated with zod. ALL prompt text in prompts/*.txt.
+- Anything exact (counts, averages, WoW, word count, quote text) computed in
+  code, never by the LLM.
+- No PII ever; redact before any LLM call or file write. Raw never committed.
+- Secrets only in Vercel env / .env.local; .env.example documents names only.
 
 ========================================================================
-REPO MAP (current)
+REPO MAP
 ========================================================================
-app/                  Next.js app (page.tsx still default template)
-data/raw/             gitignored local state (corpus.json etc.)
-data/sample/          committed, REDACTED samples only (gold-set.json — 50 labeled)
-lib/imports/          appstore.ts, playstore.ts, index.ts
-lib/pipeline/         types.ts (state machine, storage keys, aggregate types)
-lib/redact.ts         PII masking (phase 3)
-lib/state.ts          Blob / local JSON store
-lib/constants.ts      themes, limits, step order, models
-lib/dates.ts          date helpers
-lib/types.ts          Review, RunMeta schemas
-prompts/              tag_themes.txt (phase 4); write_note.txt (phase 7)
-scripts/              smoke-import.ts, pii-gate.ts, gold-set.ts (phase 8: authorize-gmail.ts)
-outputs/              committed note artifacts (weekly-note-YYYY-WW.md)
-tests/                vitest suites (redact.test.ts, goldset.test.ts; tag/note tests later)
-.github/workflows/    ci.yml (typecheck + test + pii:gate)
-vercel.json           cron Monday 09:00 UTC -> /api/cron/pulse
+app/                    Next.js app (default template; phase 9 builds UI)
+data/raw/               gitignored local state (corpus.json etc.)
+data/sample/            committed REDACTED only: gold-set.json, tagged-gold.json
+lib/imports/            appstore.ts, playstore.ts, index.ts (pure)
+lib/pipeline/           types.ts, tag.ts, aggregate.ts
+lib/redact.ts           PII masking
+lib/llm.ts              Mistral transport
+lib/state.ts            Blob / local JSON store
+lib/constants.ts        themes, limits, ranking weights, models
+lib/dates.ts            date helpers (daysAgoIso, weeksAgoIso, isoWeek...)
+lib/types.ts            Review, TaggedReview, TagTheme schemas
+prompts/                tag_themes.txt (phase 4); write_note.txt (phase 7)
+scripts/                smoke-import, pii-gate, gold-set, eval-tag, smoke-aggregate,
+                        (phase 8: authorize-gmail.ts)
+outputs/                committed note artifacts (weekly-note-YYYY-WW.md)
+tests/                  redact, goldset, tag, aggregate (+ phase 7 note tests)
+.github/workflows/      ci.yml (typecheck + test + pii:gate)
+vercel.json             cron Mon 09:00 UTC -> /api/cron/pulse

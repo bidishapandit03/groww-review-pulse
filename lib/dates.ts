@@ -11,12 +11,14 @@ export function toDateOnly(dateStr: string): string | null {
 
 /** ISO date (YYYY-MM-DD) `weeks` weeks before today. */
 export function weeksAgoIso(weeks: number): string {
+  return daysAgoIso(weeks * 7);
+}
+
+/** ISO date (YYYY-MM-DD) `days` days before today. */
+export function daysAgoIso(days: number): string {
   const d = new Date();
-  d.setUTCDate(d.getUTCDate() - weeks * 7);
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  d.setUTCDate(d.getUTCDate() - days);
+  return toDateOnly(d.toISOString()) as string;
 }
 
 /** ISO week number (1-53) for a YYYY-MM-DD date. */

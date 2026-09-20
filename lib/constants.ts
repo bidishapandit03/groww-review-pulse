@@ -53,8 +53,11 @@ export const MAX_THEMES_IN_NOTE = 3;
 export const MAX_QUOTES = 3;
 export const MAX_ACTIONS = 3;
 export const MAX_NOTE_WORDS = 250;
-export const QUOTE_MIN_WORDS = 8;
+// Quote length guide (PRD suggested 8 words); relaxed to 4 so short but clear
+// Hinglish reviews stay eligible as verbatim quotes.
+export const QUOTE_MIN_WORDS = 4;
 export const QUOTE_MAX_WORDS = 25;
+export const QUOTE_CANDIDATES_PER_THEME = 6;
 
 export const WINDOW_MIN_WEEKS = 8;
 export const WINDOW_MAX_WEEKS = 12;
