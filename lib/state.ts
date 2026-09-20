@@ -12,10 +12,21 @@ import path from "node:path";
  */
 
 const LOCAL_ROOT = path.join(process.cwd(), "data/raw");
+const isVercel = process.env.VERCEL === "1";
 const hasBlob = Boolean(
   process.env.BLOB_READ_WRITE_TOKEN?.trim() &&
     process.env.BLOB_READ_WRITE_TOKEN !== "local",
 );
+
+/** /var/task on Vercel is read-only — never attempt local writes there. */
+function assertWritable() {
+  if (isVercel && !hasBlob) {
+    throw new Error(
+      "BLOB_READ_WRITE_TOKEN is not set — the Vercel state store requires Vercel Blob. " +
+        "Add the token (Settings → Environment Variables → Production) and redeploy.",
+    );
+  }
+}
 
 async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
   return new Response(stream).text();
@@ -52,6 +63,7 @@ export async function writeJson(key: string, data: unknown): Promise<void> {
     });
     return;
   }
+  assertWritable();
   const fp = path.join(LOCAL_ROOT, key);
   await mkdir(path.dirname(fp), { recursive: true });
   await writeFile(fp, body, "utf8");
@@ -69,6 +81,7 @@ export async function writePublic(key: string, data: unknown): Promise<void> {
     });
     return;
   }
+  assertWritable();
   const fp = path.join(LOCAL_ROOT, key);
   await mkdir(path.dirname(fp), { recursive: true });
   await writeFile(fp, body, "utf8");
