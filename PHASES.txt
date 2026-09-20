@@ -127,7 +127,7 @@ Built:
 ========================================================================
 DONE — PHASE 7: Generate + validate weekly note (PRD Step 7)
 ========================================================================
-Commit: (phase 7 commit hash)
+Commit: 2d589fa "feat(note): generate + validate weekly note (phase 7)"
 
 Decisions: tone = neutral-factual (no marketing); every action carries an
 owner (Product / Support / Growth) + one metric to watch; WoW rendered inline
