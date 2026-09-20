@@ -93,7 +93,9 @@ export function buildEml(
 /** A clickable mailto: link, optionally prefilled with the note body. */
 export function mailtoUrl(note: Note, to?: string, body?: string): string {
   const recipient = to ?? emailRecipient();
-  const q = (s: string) => encodeURIComponent(s).replace(/%20/g, "+");
+  // encodeURIComponent only: keep %20 (mail clients treat a literal "+"
+  // as-is, so never substitute spaces with "+" in the body).
+  const q = (s: string) => encodeURIComponent(s);
   const bodyPart = body ? `&body=${q(body)}` : "";
   return `mailto:${recipient}?subject=${q(emailSubject(note))}${bodyPart}`;
 }
