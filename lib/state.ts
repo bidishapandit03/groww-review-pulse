@@ -13,17 +13,25 @@ import path from "node:path";
 
 const LOCAL_ROOT = path.join(process.cwd(), "data/raw");
 const isVercel = process.env.VERCEL === "1";
+/**
+ * Blob is available when a store is connected. Modern connections authenticate
+ * via OIDC: Vercel injects BLOB_STORE_ID + a rotating VERCEL_OIDC_TOKEN, so no
+ * static secret is needed. BLOB_READ_WRITE_TOKEN remains the fallback for code
+ * running outside Vercel (e.g. a local script targeting prod data).
+ */
 const hasBlob = Boolean(
-  process.env.BLOB_READ_WRITE_TOKEN?.trim() &&
-    process.env.BLOB_READ_WRITE_TOKEN !== "local",
+  process.env.BLOB_STORE_ID ||
+    (process.env.BLOB_READ_WRITE_TOKEN?.trim() &&
+      process.env.BLOB_READ_WRITE_TOKEN !== "local"),
 );
 
 /** /var/task on Vercel is read-only — never attempt local writes there. */
 function assertWritable() {
   if (isVercel && !hasBlob) {
     throw new Error(
-      "BLOB_READ_WRITE_TOKEN is not set — the Vercel state store requires Vercel Blob. " +
-        "Add the token (Settings → Environment Variables → Production) and redeploy.",
+      "No Blob store is connected to this project. Open the store's Projects tab " +
+        "(Storage -> grow-pulse store -> Projects) and select Connect to Project " +
+        "with Production included, or set BLOB_READ_WRITE_TOKEN, then redeploy.",
     );
   }
 }

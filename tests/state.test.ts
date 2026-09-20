@@ -12,14 +12,15 @@ async function freshState() {
 afterEach(() => {
   delete process.env.VERCEL;
   delete process.env.BLOB_READ_WRITE_TOKEN;
+  delete process.env.BLOB_STORE_ID;
 });
 
 describe("state store on Vercel", () => {
-  it("refuses local writes when BLOB_READ_WRITE_TOKEN is missing", async () => {
+  it("refuses local writes when no Blob store is connected", async () => {
     process.env.VERCEL = "1";
     const { writeJson } = await freshState();
     await expect(writeJson("pipeline/x.json", { a: 1 })).rejects.toThrow(
-      /BLOB_READ_WRITE_TOKEN is not set/,
+      /No Blob store is connected/,
     );
   });
 
@@ -28,8 +29,24 @@ describe("state store on Vercel", () => {
     process.env.BLOB_READ_WRITE_TOKEN = "local";
     const { writeJson } = await freshState();
     await expect(writeJson("pipeline/x.json", { a: 1 })).rejects.toThrow(
-      /BLOB_READ_WRITE_TOKEN is not set/,
+      /No Blob store is connected/,
     );
+  });
+
+  // OIDC: a connected store supplies BLOB_STORE_ID at runtime; the SDK pair
+  // (BLOB_STORE_ID + rotating VERCEL_OIDC_TOKEN) authenticates without any
+  // static secret. We assert the guard defers to the SDK rather than throwing.
+  it("accepts a connected store via BLOB_STORE_ID (OIDC auth)", async () => {
+    process.env.VERCEL = "1";
+    process.env.BLOB_STORE_ID = "store_some_id";
+    const { writeJson } = await freshState();
+    let guardHit = false;
+    try {
+      await writeJson("pipeline/_oidc_test.json", { a: 1 });
+    } catch (err) {
+      guardHit = /No Blob store is connected/.test(err instanceof Error ? err.message : String(err));
+    }
+    expect(guardHit).toBe(false);
   });
 
   it("has a writable local store outside Vercel without a token", async () => {
