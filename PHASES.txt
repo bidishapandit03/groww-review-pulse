@@ -155,7 +155,7 @@ quotes, Actions with owner + metric.
 ========================================================================
 DONE — PHASE 8: Create the email draft (PRD Step 8)
 ========================================================================
-Commit: (phase 8 commit hash)
+Commit: 627c8b6 "feat(email): .eml draft fallback — phase 8"
 
 Decision: no-OAuth .eml fallback (see consultation note below). Recipient
 default = bidishapandit03@gmail.com (overridable via EMAIL_RECIPIENT env).
