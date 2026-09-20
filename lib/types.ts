@@ -1,4 +1,4 @@
-import { OTHER_BUCKET, THEME_IDS } from "@/lib/constants";
+import { ACTION_OWNERS, OTHER_BUCKET, THEME_IDS } from "@/lib/constants";
 import { z } from "zod";
 
 /** Reviews are normalized to these four fields. Author/username is never stored. */
@@ -23,6 +23,39 @@ export type TagTheme = z.infer<typeof tagThemeSchema>;
 export const taggedReviewSchema = reviewSchema.extend({ theme: tagThemeSchema });
 export type TaggedReview = z.infer<typeof taggedReviewSchema>;
 export const TaggedReviewListSchema = z.array(taggedReviewSchema);
+
+export const actionOwnerSchema = z.enum(ACTION_OWNERS);
+export type ActionOwner = z.infer<typeof actionOwnerSchema>;
+
+/** One ranked theme in the note, summarized by the LLM with code-computed stats. */
+export const themeSummarySchema = z.object({
+  theme: tagThemeSchema,
+  summary: z.string(),
+});
+export type ThemeSummary = z.infer<typeof themeSummarySchema>;
+
+/** One action idea: concrete step + owner + metric to watch. */
+export const noteActionSchema = z.object({
+  action: z.string(),
+  owner: actionOwnerSchema,
+  metric: z.string(),
+});
+export type NoteAction = z.infer<typeof noteActionSchema>;
+
+/**
+ * Validated weekly note. quoteIds are review ids the LLM selected; the exact
+ * quote text is inserted by code so quotes are always verbatim and verified.
+ */
+export const noteSchema = z.object({
+  weekLabel: z.string(),
+  generatedAt: z.string(),
+  themes: z.array(themeSummarySchema).length(3),
+  quoteIds: z.array(z.string()).length(3),
+  actions: z.array(noteActionSchema).length(3),
+  /** computed in code over the rendered body, never by the LLM */
+  wordCount: z.number().int().min(0),
+});
+export type Note = z.infer<typeof noteSchema>;
 
 export interface ImportResult {
   reviews: Review[];

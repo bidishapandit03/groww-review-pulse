@@ -13,6 +13,7 @@
     "pii:gate": "tsx scripts/pii-gate.ts",
     "tag:eval": "tsx scripts/eval-tag.ts",
     "aggregate:smoke": "tsx scripts/smoke-aggregate.ts",
+    "note:smoke": "tsx scripts/smoke-note.ts",
     "import:smoke": "tsx scripts/smoke-import.ts"
   },
   "dependencies": {

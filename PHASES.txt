@@ -12,10 +12,10 @@ PROGRESS AT A GLANCE
  3 Redact PII (CI gate) DONE  dab8662
  4 Theme legend+goldset DONE  a31ccf3
  5 Mistral tagging      DONE  015a1a1
- 6 Top themes+quotes    DONE  (phase 6 commit)
- 7 Weekly note          NEXT
- 8 Email draft          NEXT
- 9 App + hosting+cron   NEXT
+6 Top themes+quotes    DONE  91874bb / eef91d2
+7 Weekly note          DONE  (phase 7 commit)
+8 Email draft          NEXT
+9 App + hosting+cron   NEXT
 
 ========================================================================
 DONE — PHASE 1: Repo scaffold (PRD Step 1)
@@ -125,25 +125,32 @@ Built:
   not the real window.
 
 ========================================================================
-NEXT — PHASE 7: Generate + validate weekly note (PRD Step 7)
+DONE — PHASE 7: Generate + validate weekly note (PRD Step 7)
 ========================================================================
-Goal: one-page pulse with EXACTLY 3 themes, 3 verbatim quotes, 3 action ideas,
-<=250 words. LLM writes prose; code guarantees every exact value.
+Commit: (phase 7 commit hash)
 
-Work:
-- prompts/write_note.txt — note prompt: theme labels, counts, avg rating,
-  WoW delta, candidate quote IDs with text. Model SELECTS quote IDs; code
-  inserts the exact quote text (quotes always verbatim + exist in data).
-- lib/pipeline/note.ts — mistralChat (ministral-8b-latest for now), JSON mode,
-  zod validation of the note schema.
-- lib/types.ts — Note schema: weekLabel, 3 themes (label/count/avg/wow),
-  3 quote ids, 3 action strings, generatedAt, wordCount.
-- Validators (retry once with error message on failure):
-  word count <=250 | exactly 3/3/3 | quotes exist in corpus | no PII.
-- Outputs: outputs/weekly-note-YYYY-WW.md + NOTE_KEY.
+Decisions: tone = neutral-factual (no marketing); every action carries an
+owner (Product / Support / Growth) + one metric to watch; WoW rendered inline
+in each theme header (omitted when unknown). Retry policy: one re-try with the
+validation error text, then the step fails loudly.
 
-Open decisions: note tone (neutral-factual vs urgent)? owners + metrics per
-action? include one-line WoW comparison within word limit?
+- prompts/write_note.txt — the model writes prose and only SELECTS quote ids.
+- lib/pipeline/note.ts — buildNotePrompt, resolveQuotes (ids -> verbatim
+  text from the pool), composeMarkdown (markdown + wordCount over the rendered
+  body), validateDraft (3/3/3, ranked themes only, no "other", no PII, <=250
+  words), generateNote (retry once + final Note). Model: ministral-8b-latest.
+- lib/types.ts — noteSchema / themeSummarySchema / noteActionSchema /
+  actionOwnerSchema. lib/constants.ts — ACTION_OWNERS, MAX_NOTE_WORDS.
+- tests/note.test.ts — 9 pure tests (no network): prompt fill, quote resolve,
+  word-count math, retry-on-invalid, retry-on-too-long, out-of-pool quote,
+  out-of-ranked theme rejection.
+- scripts/smoke-note.ts — npm run note:smoke; real Mistral note from the
+  tagged gold set, written to outputs/weekly-note-sample.md (PII-gated).
+  Verified: 131 words, real verbatim quotes, all validators passed.
+
+Sample output (outputs/weekly-note-sample.md) shows the format: H1 + stat
+line, 3 theme blocks with counts/rating/WoW from code, Voices with verbatim
+quotes, Actions with owner + metric.
 
 ========================================================================
 NEXT — PHASE 8: Create the email draft (PRD Step 8)

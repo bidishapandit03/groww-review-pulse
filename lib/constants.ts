@@ -53,6 +53,8 @@ export const MAX_THEMES_IN_NOTE = 3;
 export const MAX_QUOTES = 3;
 export const MAX_ACTIONS = 3;
 export const MAX_NOTE_WORDS = 250;
+
+export const ACTION_OWNERS = ["Product", "Support", "Growth"] as const;
 // Quote length guide (PRD suggested 8 words); relaxed to 4 so short but clear
 // Hinglish reviews stay eligible as verbatim quotes.
 export const QUOTE_MIN_WORDS = 4;
