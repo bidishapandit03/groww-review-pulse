@@ -25,6 +25,8 @@ async function main() {
 
   const out = path.join(process.cwd(), "outputs", "weekly-note-sample.md");
   await writeFile(out, markdown, "utf8");
+  const outJson = path.join(process.cwd(), "outputs", "weekly-note-sample.json");
+  await writeFile(outJson, JSON.stringify({ note, selectedQuotes }, null, 2), "utf8");
   console.log(markdown);
   console.log(`[wordCount=${wordCount} validators_passed wrote=${out}]`);
 }

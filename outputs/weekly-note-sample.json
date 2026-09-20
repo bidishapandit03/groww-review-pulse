@@ -1,0 +1,69 @@
+{
+  "note": {
+    "weekLabel": "2026-W38",
+    "generatedAt": "2026-09-20T08:14:37.703Z",
+    "themes": [
+      {
+        "theme": "trading_orders",
+        "summary": "Order execution delays and interface lag persist; user complaints spike"
+      },
+      {
+        "theme": "charges_statements",
+        "summary": "Hidden fees and transaction report inaccuracies cause frustration"
+      },
+      {
+        "theme": "app_support",
+        "summary": "24/7 support unresponsive; customer service reliability questioned"
+      }
+    ],
+    "quoteIds": [
+      "gs_041",
+      "gs_012",
+      "gs_049"
+    ],
+    "actions": [
+      {
+        "action": "Audit order execution latency and interface performance",
+        "owner": "Product",
+        "metric": "order delay %"
+      },
+      {
+        "action": "Review fee transparency and statement reconciliation process",
+        "owner": "Support",
+        "metric": "report accuracy rate"
+      },
+      {
+        "action": "Implement 24/7 support response tracking and escalation",
+        "owner": "Growth",
+        "metric": "reply resolution time"
+      }
+    ],
+    "wordCount": 132
+  },
+  "selectedQuotes": [
+    {
+      "id": "gs_041",
+      "theme": "trading_orders",
+      "rating": 1,
+      "text": "service not good, charges high...interface laging..",
+      "source": "playstore",
+      "date": "2026-09-17"
+    },
+    {
+      "id": "gs_012",
+      "theme": "charges_statements",
+      "rating": 1,
+      "text": "Transaction report total wrong fraud app I have stock is holding transaction is indraday 😔😔😔😔😔😔",
+      "source": "playstore",
+      "date": "2026-09-15"
+    },
+    {
+      "id": "gs_049",
+      "theme": "app_support",
+      "rating": 1,
+      "text": "The customer service is worst. I don't get any reply even though it say 24/7 support",
+      "source": "playstore",
+      "date": "2026-08-31"
+    }
+  ]
+}

@@ -13,8 +13,8 @@ PROGRESS AT A GLANCE
  4 Theme legend+goldset DONE  a31ccf3
  5 Mistral tagging      DONE  015a1a1
 6 Top themes+quotes    DONE  91874bb / eef91d2
-7 Weekly note          DONE  (phase 7 commit)
-8 Email draft          NEXT
+7 Weekly note          DONE  2d589fa / b833d91
+8 Email draft (.eml)   DONE  (phase 8 commit)
 9 App + hosting+cron   NEXT
 
 ========================================================================
@@ -153,19 +153,29 @@ line, 3 theme blocks with counts/rating/WoW from code, Voices with verbatim
 quotes, Actions with owner + metric.
 
 ========================================================================
-NEXT — PHASE 8: Create the email draft (PRD Step 8)
+DONE — PHASE 8: Create the email draft (PRD Step 8)
 ========================================================================
-Goal: the note as a Gmail DRAFT (never sent) in the user's mailbox.
+Commit: (phase 8 commit hash)
 
-Work:
-- scripts/authorize-gmail.ts — one-time OAuth -> refresh token.
-- lib/pipeline/email.ts — googleapis Gmail drafts.create, note as body;
-  subject e.g. "Groww Weekly Review Pulse - Week 38, 2026".
-- Secrets: GMAIL_CLIENT_ID/SECRET/REFRESH_TOKEN/RECIPIENT in Vercel env /
-  .env.local (.env.example documents names only).
-- Fallback: .eml file or mailto: link + screenshot in repo.
+Decision: no-OAuth .eml fallback (see consultation note below). Recipient
+default = bidishapandit03@gmail.com (overridable via EMAIL_RECIPIENT env).
+Optional Phase 8b later: Gmail API OAuth to create a real draft in-message.
 
-Open decisions: which email address? Google Cloud OAuth or .eml fallback?
+- lib/pipeline/email.ts — RFC 5322 .eml composer: headers (MIME-Version, Date,
+  To, Subject, Content-Type UTF-8, quoted-printable), qpEncode (RFC 2045:
+  =XX for unicode/control, 76-char soft wrap, CRLF line endings so ★ and
+  emojis survive any client), mailtoUrl() convenience link.
+- scripts/smoke-email.ts — npm run email:smoke; packs the sample note into
+  outputs/weekly-email-sample.eml (deterministic except Date). smoke-note now
+  also writes outputs/weekly-note-sample.json so email needs no second LLM call.
+- tests/email.test.ts — QP round-trip + soft-wrap, headers, subject, recipient
+  env override, mailto link.
+- .env.example — EMAIL_RECIPIENT documented (name only). Gmail OAuth block kept
+  for the optional 8b.
+
+Open decision (8b, optional): Gmail API OAuth for a real auto-draft. Needs a
+Google Cloud OAuth client + one-time consent; email.ts buildEml output can be
+reused as the draft body without changes.
 
 ========================================================================
 NEXT — PHASE 9: App, hosting, automation (PRD Step 9)
