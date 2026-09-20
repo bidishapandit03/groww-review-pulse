@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildEml, mailtoUrl } from "@/lib/pipeline/email";
 import { noteSchema } from "@/lib/types";
@@ -23,7 +23,11 @@ async function main() {
   );
 
   const eml = buildEml(note, markdown);
-  const out = path.join(process.cwd(), "outputs", "weekly-email-sample.eml");
+  // Emails carry the real recipient address (PII) — keep them in the
+  // gitignored data/raw/, never in committed outputs/.
+  const dir = path.join(process.cwd(), "data", "raw");
+  const out = path.join(dir, "weekly-email-sample.eml");
+  await mkdir(dir, { recursive: true });
   await writeFile(out, eml, "utf8");
 
   console.log(`Wrote ${out}`);

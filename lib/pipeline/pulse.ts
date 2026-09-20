@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { aggregate } from "@/lib/pipeline/aggregate";
-import type { AggregateResult, CandidateQuote } from "@/lib/pipeline/types";
+import { defaultStore, readState } from "@/lib/pipeline/run";
+import type { AggregateResult, CandidateQuote, PipelineState } from "@/lib/pipeline/types";
 import { AGGREGATE_KEY, NOTE_KEY } from "@/lib/pipeline/types";
 import { readJson } from "@/lib/state";
 import type { Note } from "@/lib/types";
@@ -18,13 +19,16 @@ export interface PulseData {
   note: Note;
   aggregate: AggregateResult;
   selectedQuotes: CandidateQuote[];
+  /** last run metadata from STATE_KEY (null before any run) */
+  lastRun: PipelineState | null;
   demo: boolean;
 }
 
 async function fromStore(): Promise<PulseData | null> {
-  const [note, agg] = await Promise.all([
+  const [note, agg, lastRun] = await Promise.all([
     readJson<Note>(NOTE_KEY),
     readJson<AggregateResult>(AGGREGATE_KEY),
+    readState(defaultStore),
   ]);
   if (!note || !agg) return null;
   const pool = new Map<string, CandidateQuote>();
@@ -37,7 +41,7 @@ async function fromStore(): Promise<PulseData | null> {
     .map((id) => pool.get(id))
     .filter((q): q is CandidateQuote => Boolean(q));
   if (selectedQuotes.length !== note.quoteIds.length) return null;
-  return { note, aggregate: agg, selectedQuotes, demo: false };
+  return { note, aggregate: agg, selectedQuotes, lastRun, demo: false };
 }
 
 export async function loadPulse(): Promise<PulseData | null> {
@@ -60,7 +64,7 @@ export async function loadPulse(): Promise<PulseData | null> {
     const tagged = taggedReviewSchema.array().parse(gold.tagged);
     const agg = aggregate(tagged, { windowWeeks: 8 });
 
-    return { note, aggregate: agg, selectedQuotes, demo: true };
+    return { note, aggregate: agg, selectedQuotes, lastRun: null, demo: true };
   } catch {
     return null;
   }

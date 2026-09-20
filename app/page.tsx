@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import RunPanel from "@/app/components/RunPanel";
 import { mailtoUrl } from "@/lib/pipeline/email";
 import { composeMarkdown, formatWow, themeLabel } from "@/lib/pipeline/note";
 import { loadPulse } from "@/lib/pipeline/pulse";
@@ -64,8 +65,9 @@ export default async function Home() {
     );
   }
 
-  const { note, aggregate: agg, selectedQuotes, demo } = pulse;
+  const { note, aggregate: agg, selectedQuotes, lastRun, demo } = pulse;
   const weekShort = note.weekLabel.split("W")[1] ?? note.weekLabel;
+  const adminRequired = Boolean(process.env.ADMIN_PASSWORD?.trim());
 
   const { markdown } = composeMarkdown(note, selectedQuotes, agg);
   const mailto = mailtoUrl(note, undefined, markdown);
@@ -175,6 +177,20 @@ export default async function Home() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="runSection">
+          <div className="sectionHead">
+            <h2 className="sectionTitle">Run pipeline</h2>
+            <span className="sectionHint">
+              {lastRun
+                ? lastRun.lastError
+                  ? `last run ${lastRun.runId} — failed at ${lastRun.step}: ${lastRun.lastError}`
+                  : `last run ${lastRun.runId} — ${lastRun.step}`
+                : "no run yet"}
+            </span>
+          </div>
+          <RunPanel adminRequired={adminRequired} />
         </section>
 
         <section className="mailSection">

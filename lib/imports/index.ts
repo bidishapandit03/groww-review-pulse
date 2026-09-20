@@ -28,13 +28,16 @@ export function mergeCorpus(existing: Review[], fresh: Review[]): Review[] {
   return [...merged.values()];
 }
 
-export interface WindowResult {
-  reviews: Review[];
+export interface WindowResult<T extends Review = Review> {
+  reviews: T[];
   coverage: Record<string, string | null>;
 }
 
 /** Slice the corpus to the last N weeks and report per-store oldest date. */
-export function sliceWindow(corpus: Review[], windowWeeks = WINDOW_MIN_WEEKS): WindowResult {
+export function sliceWindow<T extends Review = Review>(
+  corpus: T[],
+  windowWeeks = WINDOW_MIN_WEEKS,
+): WindowResult<T> {
   const weeks = Math.min(Math.max(windowWeeks, WINDOW_MIN_WEEKS), WINDOW_MAX_WEEKS);
   const cutoff = weeksAgoIso(weeks);
   const inWindow = corpus

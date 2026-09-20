@@ -15,6 +15,7 @@
     "aggregate:smoke": "tsx scripts/smoke-aggregate.ts",
     "note:smoke": "tsx scripts/smoke-note.ts",
     "email:smoke": "tsx scripts/smoke-email.ts",
+    "pipeline": "tsx scripts/run-pipeline.ts",
     "import:smoke": "tsx scripts/smoke-import.ts"
   },
   "dependencies": {

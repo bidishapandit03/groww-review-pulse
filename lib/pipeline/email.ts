@@ -35,6 +35,7 @@ function encodeLine(line: string): string {
   const atoms: string[] = [];
   for (const ch of line) {
     if (ch === "=") atoms.push("=3D");
+    else if (ch === " ") atoms.push(" ");
     else if (ch >= "\u0021" && ch <= "\u007e") atoms.push(ch);
     else {
       const bytes = new TextEncoder().encode(ch);
@@ -44,7 +45,9 @@ function encodeLine(line: string): string {
   let out = "";
   let cur = 0;
   for (const atom of atoms) {
-    if (cur + atom.length > MAX_QP_LINE && cur > 0) {
+    // leave room for the trailing "=" soft-break marker so every line,
+    // marker included, stays within MAX_QP_LINE.
+    if (cur + atom.length > MAX_QP_LINE - 1 && cur > 0) {
       out += "=\r\n";
       cur = 0;
     }

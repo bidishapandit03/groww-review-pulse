@@ -2,6 +2,26 @@ import { describe, expect, it } from "vitest";
 import { buildEml, emailRecipient, emailSubject, mailtoUrl, qpEncode, toRfc2822 } from "@/lib/pipeline/email";
 import type { Note } from "@/lib/types";
 
+// Minimal but UTF-8-correct quoted-printable decoder.
+function decodeQp(qp: string): string {
+  const bytes: number[] = [];
+  let i = 0;
+  while (i < qp.length) {
+    if (qp[i] === "=") {
+      if (qp.startsWith("=\r\n", i)) {
+        i += 3;
+        continue;
+      }
+      const code = parseInt(qp.slice(i + 1, i + 3), 16);
+      bytes.push(Number.isNaN(code) ? qp.charCodeAt(i) : code);
+      i += 3;
+    } else {
+      bytes.push(qp.charCodeAt(i++));
+    }
+  }
+  return new TextDecoder("utf-8").decode(new Uint8Array(bytes));
+}
+
 const note: Note = {
   weekLabel: "2026-W38",
   generatedAt: "2026-09-20T00:00:00.000Z",
@@ -34,12 +54,8 @@ describe("qpEncode", () => {
   });
 
   it("round-trips through a minimal decoder", () => {
-    const decode = (qp: string) =>
-      qp.replace(/=\r\n/g, "").replace(/=([0-9A-F]{2})/g, (_, h: string) =>
-        String.fromCharCode(parseInt(h, 16)),
-      );
     const src = "Ghatiya ★ experience 😔";
-    expect(decode(qpEncode(src))).toBe(src);
+    expect(decodeQp(qpEncode(src))).toBe(src);
   });
 
   it("soft-wraps lines at 76 chars without breaking an encoded atom", () => {
@@ -66,7 +82,8 @@ describe("email building", () => {
     const eml = buildEml(note, markdown, { to: "bidishapandit03@gmail.com", date: new Date() });
     expect(eml).toContain("# Groww Weekly Review Pulse");
     expect(eml).toContain("=F0=9F=98=94"); // 😔
-    expect(eml).toContain("3 themes · 3 voices · 3 actions");
+    const body = eml.split(/\r\n\r\n/)[1] ?? "";
+    expect(decodeQp(body)).toContain("3 themes · 3 voices · 3 actions");
   });
 
   it("subject uses the note week label", () => {

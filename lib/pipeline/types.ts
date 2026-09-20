@@ -3,10 +3,12 @@ import type { PipelineStep } from "@/lib/constants";
 import { z } from "zod";
 
 export const CORPUS_KEY = "pipeline/corpus.json";
+export const REDACT_KEY = "pipeline/redacted.json";
 export const STATE_KEY = "pipeline/state.json";
 export const TAGGED_KEY = "pipeline/tagged.json";
 export const AGGREGATE_KEY = "pipeline/aggregate.json";
 export const NOTE_KEY = "pipeline/note.json";
+export const EMAIL_KEY = "pipeline/email.json";
 
 export interface PipelineState {
   runId: string;
