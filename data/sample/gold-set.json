@@ -1,0 +1,502 @@
+[
+  {
+    "goldId": "gs_001",
+    "source": "playstore",
+    "rating": 3,
+    "date": "2026-09-09",
+    "title": "",
+    "text": "okk",
+    "label": "other",
+    "note": "no signal"
+  },
+  {
+    "goldId": "gs_002",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-05",
+    "title": "",
+    "text": "good luck",
+    "label": "other",
+    "note": "no signal"
+  },
+  {
+    "goldId": "gs_003",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-08-31",
+    "title": "",
+    "text": "excellent",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_004",
+    "source": "playstore",
+    "rating": 3,
+    "date": "2026-09-03",
+    "title": "",
+    "text": "High chrge app design user friendly but charge is very very high buy selling total profit suvaga",
+    "label": "charges_statements",
+    "note": "brokerage charges on buy/sell"
+  },
+  {
+    "goldId": "gs_005",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-09",
+    "title": "",
+    "text": "delete my account profile",
+    "label": "app_support",
+    "note": "account deletion request"
+  },
+  {
+    "goldId": "gs_006",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-12",
+    "title": "",
+    "text": "I withdraw money it not come 😭",
+    "label": "payments_withdrawals",
+    "note": "payout not received"
+  },
+  {
+    "goldId": "gs_007",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "groww is the best",
+    "label": "other",
+    "note": "sarcasm / no signal"
+  },
+  {
+    "goldId": "gs_008",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "good",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_009",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "worst",
+    "label": "other",
+    "note": "no detail"
+  },
+  {
+    "goldId": "gs_010",
+    "source": "playstore",
+    "rating": 4,
+    "date": "2026-09-05",
+    "title": "",
+    "text": "nice",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_011",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-07",
+    "title": "",
+    "text": "I am giving half star actually for let updates of chart and shares prices. and too much charges are in option trading. brokerage is ok but external charges without any use and saying GST and bla bla .....wrost experience in grow and thats why grow loosing customers.... and remove that third class scalper mode which is near chain options.",
+    "label": "charges_statements",
+    "note": "chart lag + option trading charges; charges dominant"
+  },
+  {
+    "goldId": "gs_012",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-15",
+    "title": "",
+    "text": "Transaction report total wrong fraud app I have stock is holding transaction is indraday 😔😔😔😔😔😔",
+    "label": "charges_statements",
+    "note": "transaction report / holding record wrong"
+  },
+  {
+    "goldId": "gs_013",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-01",
+    "title": "",
+    "text": "just now uninstalled the groww app. i though of trading, options through this app. intially, i wanted to observe this app, if conducive wanted to dive into it. Holy cow, the recent update made it worse. unable to explore the features or trying to take the credentials of my account. Not even deserve one star. i wonder how all those 5 stars you guys got !!! GROWW, you really messed up with the recent update.",
+    "label": "app_support",
+    "note": "post-update app/UI problems"
+  },
+  {
+    "goldId": "gs_014",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-11",
+    "title": "",
+    "text": "too many changes and taxes",
+    "label": "charges_statements",
+    "note": "taxes/charges complaint"
+  },
+  {
+    "goldId": "gs_015",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-08-31",
+    "title": "",
+    "text": "very nice",
+    "label": "other",
+    "note": "no signal"
+  },
+  {
+    "goldId": "gs_016",
+    "source": "appstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "plz Add Remove option in Targeted price.",
+    "text": "I Put Target price in Nifty and other Options. & After Some Time it’s trigger. And Then i try to remove my Traget price then i see thare is No Option to remove target price. So plz Add this Futures.",
+    "label": "trading_orders",
+    "note": "target/order tool missing feature"
+  },
+  {
+    "goldId": "gs_017",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-15",
+    "title": "",
+    "text": "even I update latest version",
+    "label": "app_support",
+    "note": "update nagging"
+  },
+  {
+    "goldId": "gs_018",
+    "source": "playstore",
+    "rating": 3,
+    "date": "2026-09-01",
+    "title": "",
+    "text": "very good",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_019",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-09",
+    "title": "",
+    "text": "Worst application for trading",
+    "label": "other",
+    "note": "no detail on what failed"
+  },
+  {
+    "goldId": "gs_020",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-04",
+    "title": "",
+    "text": "bad",
+    "label": "other",
+    "note": "no signal"
+  },
+  {
+    "goldId": "gs_021",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-07",
+    "title": "",
+    "text": "navigation buttons issue. bring back navigation buttons in chart view it's very annoying to go back while on chart or atleast give settings for auto hide navigation buttons or disable it while on chart Please fix the issue of back button",
+    "label": "trading_orders",
+    "note": "chart view UX / back navigation"
+  },
+  {
+    "goldId": "gs_022",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-09",
+    "title": "",
+    "text": "The UI is user friendly but the functioning of the app is very poor it gets lagged when important trades are taken..........worst app to trade in or invest in.",
+    "label": "trading_orders",
+    "note": "lag during trades"
+  },
+  {
+    "goldId": "gs_023",
+    "source": "playstore",
+    "rating": 4,
+    "date": "2026-09-03",
+    "title": "",
+    "text": "vary best",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_024",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-09",
+    "title": "",
+    "text": "good",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_025",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-16",
+    "title": "",
+    "text": "i like",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_026",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-12",
+    "title": "",
+    "text": "good",
+    "label": "other",
+    "note": "no signal"
+  },
+  {
+    "goldId": "gs_027",
+    "source": "playstore",
+    "rating": 2,
+    "date": "2026-09-11",
+    "title": "",
+    "text": "very sluggish app.. day by day it is deteriorating. sometime screen freezes and u r left with no choice but to force shutdown the app and relaunch..",
+    "label": "app_support",
+    "note": "freezes / crashes"
+  },
+  {
+    "goldId": "gs_028",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-07",
+    "title": "",
+    "text": "❤️",
+    "label": "other",
+    "note": "generic"
+  },
+  {
+    "goldId": "gs_029",
+    "source": "playstore",
+    "rating": 4,
+    "date": "2026-09-04",
+    "title": "",
+    "text": "very good",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_030",
+    "source": "playstore",
+    "rating": 4,
+    "date": "2026-09-05",
+    "title": "",
+    "text": "The user friendly interface loved it",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_031",
+    "source": "appstore",
+    "rating": 1,
+    "date": "2026-09-06",
+    "title": "Poor Customer Service",
+    "text": "I invested ₹10.00 Lakhs in SIF of SBI MAGNUM LONG SHORT NFO on 12/08/2026 via Groww however the investment doesn’t reflect in Groww app even till date i.e. 06/09/2026. I have raised the pressing issue with their support team along with sought after documents & statements from CAMS. But no solution provided so far.",
+    "label": "app_support",
+    "note": "MF investment not reflecting; support unresponsive"
+  },
+  {
+    "goldId": "gs_032",
+    "source": "playstore",
+    "rating": 3,
+    "date": "2026-09-07",
+    "title": "",
+    "text": "very good",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_033",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-08",
+    "title": "",
+    "text": "supar",
+    "label": "other",
+    "note": "no signal"
+  },
+  {
+    "goldId": "gs_034",
+    "source": "playstore",
+    "rating": 3,
+    "date": "2026-09-13",
+    "title": "",
+    "text": "good",
+    "label": "other",
+    "note": "generic"
+  },
+  {
+    "goldId": "gs_035",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-08-31",
+    "title": "",
+    "text": "Good aap for investment for long-term",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_036",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "The worst app always demands documentation",
+    "label": "onboarding_kyc",
+    "note": "repeated document verification"
+  },
+  {
+    "goldId": "gs_037",
+    "source": "appstore",
+    "rating": 5,
+    "date": "2026-09-01",
+    "title": "Very issue to use",
+    "text": "Suggestions on stocks are also good and helpful",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_038",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-10",
+    "title": "",
+    "text": "this is best app",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_039",
+    "source": "appstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "Grow is cheating i have evidence their system is not good triggering false prices and making to loss",
+    "text": "I have the proof my trigger price was 195.40 but market didnt go down it went up but my sl order triggered at 192 and gave me loss",
+    "label": "trading_orders",
+    "note": "false SL trigger / order execution"
+  },
+  {
+    "goldId": "gs_040",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-05",
+    "title": "",
+    "text": "Ghatiya experience hidden charges bahoot hain loot gya mein",
+    "label": "charges_statements",
+    "note": "hidden charges"
+  },
+  {
+    "goldId": "gs_041",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "service not good, charges high...interface laging..",
+    "label": "charges_statements",
+    "note": "mixed; charges most concrete"
+  },
+  {
+    "goldId": "gs_042",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-11",
+    "title": "",
+    "text": "charts are inaccurate and doesn't show more than 3-4 years old.new update is pathetic as they provide scalpers button just above bach button. it very annoying.",
+    "label": "trading_orders",
+    "note": "chart accuracy / historical data"
+  },
+  {
+    "goldId": "gs_043",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "Risky App!! Pathetic Misguiding Cusomer Support Team. Dont map your precious money with such Apps!!",
+    "label": "app_support",
+    "note": "support team quality"
+  },
+  {
+    "goldId": "gs_044",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-17",
+    "title": "",
+    "text": "Worst experience I ever had on any demat platform. I brought unlisted shares and Grow support took one month just to reflect in my demat amount, despite providing them the exact data and after that new issue now I am unable to sell those shares and customer support is pathetic, always delay in response.",
+    "label": "app_support",
+    "note": "demat holding reflect delay + support; support delay dominant"
+  },
+  {
+    "goldId": "gs_045",
+    "source": "playstore",
+    "rating": 4,
+    "date": "2026-09-02",
+    "title": "",
+    "text": "simple easy to trade",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_046",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-09-13",
+    "title": "",
+    "text": "Very very worst Oi and Oi cheg not show and not support worst update this groww application",
+    "label": "trading_orders",
+    "note": "OI market data missing"
+  },
+  {
+    "goldId": "gs_047",
+    "source": "appstore",
+    "rating": 2,
+    "date": "2026-09-11",
+    "title": "Flat 5 rs new  Extra Charge",
+    "text": "Flat 5 rs new Extra Charge for every stock purchase",
+    "label": "charges_statements",
+    "note": "new per-purchase charge"
+  },
+  {
+    "goldId": "gs_048",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-05",
+    "title": "",
+    "text": "good service",
+    "label": "other",
+    "note": "generic praise"
+  },
+  {
+    "goldId": "gs_049",
+    "source": "playstore",
+    "rating": 1,
+    "date": "2026-08-31",
+    "title": "",
+    "text": "The customer service is worst. I don't get any reply even though it say 24/7 support",
+    "label": "app_support",
+    "note": "no reply from support"
+  },
+  {
+    "goldId": "gs_050",
+    "source": "playstore",
+    "rating": 5,
+    "date": "2026-09-11",
+    "title": "",
+    "text": "good",
+    "label": "other",
+    "note": "generic praise"
+  }
+]

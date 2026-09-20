@@ -82,10 +82,31 @@ Built:
     AggregateResult, CandidateQuote.
 
 ========================================================================
-NEXT — PHASE 4: Theme legend + gold set (PRD Step 4)
+DONE — PHASE 4: Theme legend + gold set (PRD Step 4)
 ========================================================================
 Goal: Lock the 5 fixed themes so weeks stay comparable, and hand-label a
 ~50-review "gold set" to measure tagging accuracy later.
+Commit: (phase 4 commit hash)
+
+Built:
+- scripts/gold-set.ts — stratified sampler (over-samples 1-star: complaints
+  drive the pulse), seeded PRNG for reproducibility, REDACTS everything before
+  writing. Usage: npx tsx scripts/gold-set.ts [count] [seed].
+- data/sample/gold-set.json — 50 hand-labeled entries (COMMITTED, redacted
+  only, no review ids). Label spread:
+    other 27 | app_support 8 | charges_statements 7 | trading_orders 6 |
+    payments_withdrawals 1 | onboarding_kyc 1
+- prompts/tag_themes.txt — verbatim theme definitions + tie-break rules +
+  JSON output contract that Phase 5 will send to the LLM.
+- tests/goldset.test.ts — CI guard: size ~50, unique ids, valid labels, both
+  stores, all ratings, zero PII, every theme present.
+
+Open decision: gold set labels were drafted by the assistant for the user to
+review/correct (edit data/sample/gold-set.json, keep tests green).
+
+========================================================================
+NEXT — PHASE 5: Tag themes with Mistral (PRD Step 5)
+========================================================================
 
 Theme legend (already in lib/constants.ts, to be confirmed against real data):
   1. onboarding_kyc    — Demat opening, KYC/e-sign delays, verification rejections
@@ -234,7 +255,7 @@ REPO MAP (current)
 ========================================================================
 app/                  Next.js app (page.tsx still default template)
 data/raw/             gitignored local state (corpus.json etc.)
-data/sample/          committed, REDACTED samples only (gold set lives here)
+data/sample/          committed, REDACTED samples only (gold-set.json — 50 labeled)
 lib/imports/          appstore.ts, playstore.ts, index.ts
 lib/pipeline/         types.ts (state machine, storage keys, aggregate types)
 lib/redact.ts         PII masking (phase 3)
@@ -242,9 +263,9 @@ lib/state.ts          Blob / local JSON store
 lib/constants.ts      themes, limits, step order, models
 lib/dates.ts          date helpers
 lib/types.ts          Review, RunMeta schemas
-prompts/              empty (phase 4 adds tag_themes.txt, phase 7 write_note.txt)
-scripts/              smoke-import.ts, pii-gate.ts (phase 4: gold-set.ts, phase 8: authorize-gmail.ts)
+prompts/              tag_themes.txt (phase 4); write_note.txt (phase 7)
+scripts/              smoke-import.ts, pii-gate.ts, gold-set.ts (phase 8: authorize-gmail.ts)
 outputs/              committed note artifacts (weekly-note-YYYY-WW.md)
-tests/                vitest suites (redact.test.ts now; tag/note tests later)
+tests/                vitest suites (redact.test.ts, goldset.test.ts; tag/note tests later)
 .github/workflows/    ci.yml (typecheck + test + pii:gate)
 vercel.json           cron Monday 09:00 UTC -> /api/cron/pulse
