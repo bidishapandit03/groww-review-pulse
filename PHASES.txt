@@ -109,7 +109,7 @@ DONE — PHASE 5: Tag themes with Mistral (PRD Step 5)
 ========================================================================
 Goal: Each review gets exactly one theme via Mistral; all counts/stats are
 computed in code, never by the LLM.
-Commit: (phase 5 commit hash)
+Commit: 015a1a1 "feat(tag): theme tagging with Mistral — 92% gold-set accuracy"
 
 Built:
 - lib/llm.ts — thin Mistral transport: auth guard, JSON mode, retry/backoff
