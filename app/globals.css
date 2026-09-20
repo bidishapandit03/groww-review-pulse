@@ -407,6 +407,65 @@ a {
   color: var(--ink);
 }
 
+/* ---------- send email ---------- */
+
+.mailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(135deg, #fff8e6 0%, #fffdf5 100%);
+  border: 1px solid #fbdea3;
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.mailHint {
+  font-size: 13px;
+  color: #7a5b16;
+  line-height: 1.5;
+}
+
+.mailbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btnSend,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 11px 20px;
+  letter-spacing: -0.1px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.btnSend {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(245, 159, 0, 0.35);
+}
+
+.btnSend:hover {
+  box-shadow: 0 6px 16px rgba(245, 159, 0, 0.45);
+  transform: translateY(-1px);
+}
+
+.btnGhost {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btnGhost:hover {
+  border-color: #d9dbe3;
+}
+
 /* ---------- empty + footer ---------- */
 
 .empty {

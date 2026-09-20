@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { formatWow, themeLabel } from "@/lib/pipeline/note";
+import { mailtoUrl } from "@/lib/pipeline/email";
+import { composeMarkdown, formatWow, themeLabel } from "@/lib/pipeline/note";
 import { loadPulse } from "@/lib/pipeline/pulse";
 import type { CandidateQuote } from "@/lib/pipeline/types";
 
@@ -65,6 +66,9 @@ export default async function Home() {
 
   const { note, aggregate: agg, selectedQuotes, demo } = pulse;
   const weekShort = note.weekLabel.split("W")[1] ?? note.weekLabel;
+
+  const { markdown } = composeMarkdown(note, selectedQuotes, agg);
+  const mailto = mailtoUrl(note, undefined, markdown);
 
   const themeStats = (id: string) => agg.tagged.find((t) => t.theme === id);
   const wowDelta = (id: string) => agg.wow.find((w) => w.theme === id)?.delta ?? null;
@@ -170,6 +174,21 @@ export default async function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="mailSection">
+          <p className="mailHint">
+            Share this pulse with the team — your mail app opens pre-filled with the
+            recap, or grab it as a .eml draft.
+          </p>
+          <div className="mailbar">
+            <a className="btnSend" href={mailto}>
+              Send this recap
+            </a>
+            <a className="btnGhost" href="/api/email" download>
+              Download .eml
+            </a>
           </div>
         </section>
 
